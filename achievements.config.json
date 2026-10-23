@@ -42,7 +42,7 @@
     { "id": "forked", "group": "impact", "name": "Forked", "metric": "forks", "unit": "forks", "tiers": [1, 5, 25, 100], "color": "blue", "description": "Forks of your own repos" },
     { "id": "follower-club", "group": "impact", "name": "Follower Club", "metric": "followers", "unit": "followers", "tiers": [10, 50, 250, 1000], "color": "pink", "description": "People following you" },
 
-    { "id": "line-machine", "group": "craft", "name": "Line Machine", "metric": "linesAdded", "unit": "lines", "tiers": [1000, 10000, 50000, 100000, 500000], "color": "pink", "description": "Lines of code you added" },
+    { "id": "line-machine", "group": "craft", "name": "Line Machine", "metric": "linesAdded", "unit": "lines", "tiers": [1000, 10000, 50000, 100000, 500000, 1000000, 5000000, 10000000], "color": "pink", "description": "Lines of code you added" },
     { "id": "refactorer", "group": "craft", "name": "Refactorer", "metric": "linesDeleted", "unit": "lines", "tiers": [1000, 5000, 10000, 50000, 100000], "color": "orange", "description": "Lines of code you deleted" },
     { "id": "polyglot", "group": "craft", "name": "Polyglot", "metric": "languages", "unit": "languages", "tiers": [3, 5, 8, 12, 20], "color": "yellow", "description": "Different languages across your repos" },
     { "id": "deep-diver", "group": "craft", "name": "Deep Diver", "metric": "topLanguageLines", "unit": "lines", "tiers": [10000, 50000, 100000], "color": "blue", "description": "Estimated lines in your biggest language" },
