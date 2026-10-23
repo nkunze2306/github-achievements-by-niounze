@@ -11,6 +11,7 @@
     "bytesPerLine": 40,
     "aiCoAuthorPattern": "co-authored-by:.*(claude|anthropic|copilot|openai|chatgpt|gemini|cursor|codex|devin)",
     "closestCount": 6,
+    "highlights": ["coding-time", "line-machine", "hand-crafted", "marathon", "refactorer", "committer"],
     "compactCardHeight": 70
   },
   "groups": {

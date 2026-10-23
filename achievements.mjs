@@ -296,9 +296,12 @@ function pickClosest(list) { return list.filter((a) => !a.maxed).sort((a, b) => 
 
 // Highlights: what reads best to an employer. score = weight x (0.4 + 0.6 x overall progress), unlocked ones first
 function pickHighlights(list) {
+  const fixed = (S.highlights || []).map((id) => list.find((a) => a.id === id)).filter(Boolean); // order from the config
+  if (fixed.length >= S.closestCount) return fixed.slice(0, S.closestCount);
   const score = (a) => (a.weight ?? 1) * (0.4 + 0.6 * Math.min(1, (a.level + (a.maxed ? 0 : a.progress)) / a.tiers.length));
   const ranked = [...list].sort((a, b) => score(b) - score(a));
-  return [...ranked.filter((a) => a.level > 0), ...ranked.filter((a) => a.level === 0)].slice(0, S.closestCount);
+  const rest = [...ranked.filter((a) => a.level > 0), ...ranked.filter((a) => a.level === 0)].filter((a) => !fixed.includes(a));
+  return [...fixed, ...rest].slice(0, S.closestCount);
 }
 
 function renderCompact(items, title, unlocked, total) {

@@ -11,6 +11,7 @@
     '.ach-by a{color:inherit;text-decoration:none}.ach-by a:hover{color:#9a9a9a}',
     '.ach-right{display:flex;align-items:center;gap:12px;flex-wrap:wrap}',
     '.ach-count{font-size:13px;color:#8b8b8b}.ach-count b{color:#fff}',
+    '.ach-exp{all:unset;cursor:pointer;font-size:12px;color:#9a9a9a;padding:4px 10px;border:1px solid #2c2c2c;border-radius:999px;background:#151515}.ach-exp:hover{color:#fff}',
     '.ach-tabs{display:inline-flex;border:1px solid #2c2c2c;border-radius:999px;padding:2px;background:#151515}',
     '.ach-tabs button{all:unset;cursor:pointer;font-size:12px;padding:4px 12px;border-radius:999px;color:#9a9a9a}',
     '.ach-tabs button.on{background:#262626;color:#fff}',
@@ -71,7 +72,7 @@
     list.forEach(function (a) { byId[a.id] = a; });
     var highlights = (j.highlights || []).map(function (id) { return byId[id]; }).filter(Boolean);
     var closest = list.filter(function (a) { return !a.maxed; }).sort(function (a, b) { return b.progress - a.progress || b.level - a.level; }).slice(0, highlights.length || 6);
-    var view = opt.view || 'highlights';
+    var view = opt.view || 'highlights', expandAll = false;
     var names = { highlights: 'Highlights', closest: 'Closest to next level', all: 'All' };
 
     function draw() {
@@ -86,11 +87,14 @@
         '<span class="ach-by"><a href="https://github.com/nkunze2306/github-achievements-by-niounze">GitHub Achievements by niounze</a></span></div>' +
         '<div class="ach-right"><span class="ach-count"><b>' + j.unlocked + '</b> / ' + j.total + ' unlocked</span><span class="ach-tabs">' +
         ['highlights', 'closest', 'all'].map(function (v) { return '<button data-v="' + v + '" class="' + (v === view ? 'on' : '') + '">' + (v === 'closest' ? 'Next level' : names[v]) + '</button>'; }).join('') +
-        '</span></div></div>' + body;
+        '</span><button class="ach-exp">' + (expandAll ? 'Collapse all' : 'Expand all') + '</button></div></div>' + body;
+      if (expandAll) root.querySelectorAll('.ach-card').forEach(function (c) { c.classList.add('open'); });
     }
     root.addEventListener('click', function (e) {
       var t = e.target.closest && e.target.closest('.ach-tabs button');
       if (t) { view = t.getAttribute('data-v'); draw(); return; }
+      var ex = e.target.closest && e.target.closest('.ach-exp');
+      if (ex) { expandAll = !expandAll; root.querySelectorAll('.ach-card').forEach(function (c) { c.classList.toggle('open', expandAll); c.querySelector('.ach-row').setAttribute('aria-expanded', expandAll ? 'true' : 'false'); }); ex.textContent = expandAll ? 'Collapse all' : 'Expand all'; return; }
       var row = e.target.closest && e.target.closest('.ach-row');
       if (row) { var c = row.parentNode; var open = c.classList.toggle('open'); row.setAttribute('aria-expanded', open ? 'true' : 'false'); }
     });
