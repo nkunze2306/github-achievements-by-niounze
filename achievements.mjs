@@ -8,6 +8,7 @@ import { readFileSync, writeFileSync, existsSync, mkdirSync, copyFileSync } from
 import { join } from 'node:path';
 import { renderPage } from './web/page.mjs';
 
+const ICONS = JSON.parse(readFileSync(new URL('./web/icons.json', import.meta.url), 'utf8')); // 12x12 pixel icons, one per achievement id
 const CONFIG = JSON.parse(readFileSync(new URL('./achievements.config.json', import.meta.url), 'utf8'));
 const S = CONFIG.settings;
 
@@ -229,7 +230,7 @@ async function collectWaka(stateFile) {
 function evaluate(metrics, hasWaka) {
   const list = CONFIG.achievements.filter((a) => !a.requires || (a.requires === 'wakatime' && hasWaka)).map((a) => {
     const value = a.metric === 'search' ? metrics['search:' + a.id] || 0 : metrics[a.metric] ?? 0;
-    return { ...a, value, tiers: a.tiers.slice() };
+    return { ...a, value, tiers: a.tiers.slice(), icon: ICONS[a.icon || a.id] || null };
   });
   // Grandmaster: all other achievements on their highest level
   const others = list.filter((a) => a.metric !== 'maxedOthers');
@@ -245,7 +246,8 @@ function evaluate(metrics, hasWaka) {
 }
 
 // ---------------------------------------------------------------- Rendering
-const COL = { green: '#34f5a0', blue: '#38bdf8', pink: '#ff5c9a', purple: '#b794ff', yellow: '#ffcf4d', orange: '#ff9f43', gold: '#ffd34e' };
+const COL = { green: '#34f5a0', blue: '#38bdf8', pink: '#ff5c9a', purple: '#b794ff', yellow: '#ffcf4d', orange: '#ff9f43', gold: '#ffd34e',
+  consistency: '#34f5a0', collaboration: '#38bdf8', impact: '#ffcf4d', craft: '#ff5c9a', ai: '#b794ff', time: '#6b8cff', fun: '#ff9f43', legendary: '#ffd34e' }; // ring colour by category
 const colorOf = (a) => (a.legendary || a.maxed ? COL.gold : COL[a.color] || a.color || COL.blue); // finished = gold
 const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 const FONT = "-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif";
@@ -253,6 +255,22 @@ const compact = (n) => (n >= 1e6 ? `${+(n / 1e6).toFixed(1)}M` : n >= 1e4 ? `${M
 const fmtVal = (a, v) => (a.format === 'hours' ? `${Math.round(v)}h` : compact(v));
 const T = (x, y, s, { size = 13, fill = '#8b8b8b', weight = 400, anchor = 'start', spacing = 0 } = {}) =>
   `<text x="${x}" y="${y}" font-family="${FONT}" font-size="${size}" font-weight="${weight}" fill="${fill}" text-anchor="${anchor}"${spacing ? ` letter-spacing="${spacing}"` : ''}>${esc(s)}</text>`;
+
+function iconSvg(ic, cx, cy, size, opacity = 1) {
+  const p = size / 12, x0 = cx - size / 2, y0 = cy - size / 2;
+  let s = `<g shape-rendering="crispEdges"${opacity < 1 ? ` opacity="${opacity}"` : ''}>`;
+  ic.rows.forEach((row, y) => {
+    for (let x = 0; x < 12; ) {
+      const ch = row[x];
+      if (ch === '.') { x++; continue; }
+      let e = x;
+      while (e < 12 && row[e] === ch) e++;
+      s += `<rect x="${(x0 + x * p).toFixed(2)}" y="${(y0 + y * p).toFixed(2)}" width="${((e - x) * p + 0.03).toFixed(2)}" height="${(p + 0.03).toFixed(2)}" fill="${ic.palette[ch]}"/>`;
+      x = e;
+    }
+  });
+  return s + '</g>';
+}
 
 function card(a, x, y, w, h = 92) {
   const k = h / 92; // compact cards scale all inner sizes
@@ -269,7 +287,8 @@ function card(a, x, y, w, h = 92) {
     `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="16" fill="#121212" stroke="${a.legendary || a.maxed ? c + '55' : '#262626'}"/>`,
     `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="#242424" stroke-width="${sw}"/>`,
     ring > 0 ? `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${c}" stroke-width="${sw}" stroke-linecap="round" stroke-dasharray="${ring.toFixed(1)} ${circ.toFixed(1)}" transform="rotate(-90 ${cx} ${cy})"/>` : '',
-    T(cx, cy + 9 * k, a.legendary ? (a.maxed ? '★' : '☆') : a.level, { size: 26 * k, fill: locked ? '#555' : '#fff', weight: 700, anchor: 'middle' }),
+    a.icon ? iconSvg(a.icon, cx, cy, r * 1.3, locked ? 0.45 : 1) : T(cx, cy + 9 * k, a.legendary ? (a.maxed ? '★' : '☆') : a.level, { size: 26 * k, fill: locked ? '#555' : '#fff', weight: 700, anchor: 'middle' }),
+    a.icon ? `<circle cx="${(cx + r * 0.74).toFixed(1)}" cy="${(cy + r * 0.74).toFixed(1)}" r="${(9 * k).toFixed(1)}" fill="#0b0b0b" stroke="${c}" stroke-width="${1.6 * k}"/>` + T(cx + r * 0.74, cy + r * 0.74 + 4 * k, a.legendary ? (a.maxed ? '★' : '☆') : a.level, { size: 11.5 * k, fill: locked ? '#777' : '#fff', weight: 700, anchor: 'middle' }) : '',
     T(ox, y + 32 * k, label, { size: 15 * Math.max(k, 0.9), fill: locked ? '#9a9a9a' : '#fff', weight: 700 }),
     `<rect x="${x + w - 18 - bw}" y="${y + 16 * k}" width="${bw}" height="${22 * k}" rx="${11 * k}" fill="${c}1c" stroke="${c}88"/>`,
     T(x + w - 18 - bw / 2, y + 31 * k - (k < 1 ? 1 : 0), badge, { size: 11.5 * Math.max(k, 0.85), fill: c, weight: 700, anchor: 'middle' }),
@@ -350,7 +369,7 @@ async function main() {
   writeFileSync(join(OUT, 'achievements-all.svg'), renderAll(list, unlocked, totalLevels));
   const data = {
     updated: new Date().toISOString(), login: LOGIN || null, unlocked, total: totalLevels, achievementsUnlocked: list.filter((a) => a.level > 0).length, achievementsTotal: list.length, highlights: highlights.map((a) => a.id), metrics,
-    achievements: list.map((a) => ({ id: a.id, name: a.name, group: a.group, legendary: !!a.legendary, color: colorOf(a), weight: a.weight ?? 1, unit: a.unit, format: a.format || null, description: a.description || '', value: a.value, tiers: a.tiers, level: a.level, next: a.next, maxed: a.maxed, progress: a.progress })),
+    achievements: list.map((a) => ({ id: a.id, name: a.name, group: a.group, legendary: !!a.legendary, color: colorOf(a), icon: a.icon, weight: a.weight ?? 1, unit: a.unit, format: a.format || null, description: a.description || '', value: a.value, tiers: a.tiers, level: a.level, next: a.next, maxed: a.maxed, progress: a.progress })),
     groups: CONFIG.groups,
   };
   writeFileSync(join(OUT, 'achievements.json'), JSON.stringify(data, null, 1));

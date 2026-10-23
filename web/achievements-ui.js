@@ -43,6 +43,20 @@
   function short(n) { return n >= 1e6 ? +(n / 1e6).toFixed(1) + 'M' : n >= 1e4 ? Math.round(n / 1e3) + 'k' : n >= 1e3 ? +(n / 1e3).toFixed(1) + 'k' : String(Math.round(n)); }
   function fv(a, v) { return a.format === 'hours' ? Math.round(v) + 'h' : short(v); }
 
+  function icon(ic, size, opacity) {
+    var p = size / 12, x0 = 23 - size / 2, y0 = 23 - size / 2, s = '<g shape-rendering="crispEdges"' + (opacity < 1 ? ' opacity="' + opacity + '"' : '') + '>';
+    ic.rows.forEach(function (row, y) {
+      for (var x = 0; x < 12;) {
+        var ch = row.charAt(x);
+        if (ch === '.') { x++; continue; }
+        var e = x; while (e < 12 && row.charAt(e) === ch) e++;
+        s += '<rect x="' + (x0 + x * p).toFixed(2) + '" y="' + (y0 + y * p).toFixed(2) + '" width="' + ((e - x) * p + 0.03).toFixed(2) + '" height="' + (p + 0.03).toFixed(2) + '" fill="' + ic.palette[ch] + '"/>';
+        x = e;
+      }
+    });
+    return s + '</g>';
+  }
+
   function card(a) {
     var c = a.maxed ? '#ffd34e' : (a.color || '#38bdf8'), lock = a.level === 0 && !a.legendary, r = 18, circ = 2 * Math.PI * r;
     var sub = a.maxed ? fv(a, a.value) + ' ' + a.unit + ' · max level' : fv(a, a.value) + ' / ' + fv(a, a.next) + ' ' + a.unit;
@@ -55,9 +69,9 @@
         '<span class="n">' + (a.legendary ? 'Legendary: ' : 'Level ' + (i + 1) + ': ') + fv(a, t) + ' ' + esc(a.unit) + '</span><span class="s">' + st + '</span></div>';
     }).join('');
     return '<div class="ach-card' + (a.legendary || a.maxed ? ' leg' : '') + (lock ? ' lock' : '') + '">' +
-      '<button class="ach-row" aria-expanded="false"><svg width="58" height="58" viewBox="0 0 46 46" style="flex:none"><circle cx="23" cy="23" r="' + r + '" fill="none" stroke="#242424" stroke-width="4.5"/>' +
+      '<button class="ach-row" aria-expanded="false"><svg width="58" height="58" viewBox="0 0 46 46" style="flex:none;overflow:visible"><circle cx="23" cy="23" r="' + r + '" fill="none" stroke="#242424" stroke-width="4.5"/>' +
       '<circle cx="23" cy="23" r="' + r + '" fill="none" stroke="' + c + '" stroke-width="4.5" stroke-linecap="round" stroke-dasharray="' + (circ * (a.maxed ? 1 : a.progress)).toFixed(1) + ' ' + circ.toFixed(1) + '" transform="rotate(-90 23 23)"/>' +
-      '<text x="23" y="28.5" text-anchor="middle" font-size="16" font-weight="700" fill="' + (lock ? '#555' : '#fff') + '">' + (a.legendary ? (a.maxed ? '★' : '☆') : a.level) + '</text></svg>' +
+      (a.icon ? icon(a.icon, 28, lock ? 0.45 : 1) + '<circle cx="36" cy="36" r="8" fill="#0b0b0b" stroke="' + c + '" stroke-width="1.5"/><text x="36" y="40" text-anchor="middle" font-size="10.5" font-weight="700" fill="' + (lock ? '#777' : '#fff') + '">' + (a.legendary ? (a.maxed ? '\u2605' : '\u2606') : a.level) + '</text>' : '<text x="23" y="28.5" text-anchor="middle" font-size="16" font-weight="700" fill="' + (lock ? '#555' : '#fff') + '">' + (a.legendary ? (a.maxed ? '\u2605' : '\u2606') : a.level) + '</text>') + '</svg>' +
       '<span class="ach-body"><span class="ach-name"><span>' + (a.legendary ? '★ ' : '') + esc(a.name) + '</span><i class="ach-badge" style="color:' + c + ';border-color:' + c + '88;background:' + c + '1c">' + badge + '</i></span>' +
       '<span class="ach-bar" style="display:block"><div style="width:' + Math.round((a.maxed ? 1 : a.progress) * 100) + '%;background:' + c + '"></div></span>' +
       '<span class="ach-sub"><span>' + esc(sub) + '</span><span>' + pctv + '%</span></span></span><span class="ach-chev">▼</span></button>' +
