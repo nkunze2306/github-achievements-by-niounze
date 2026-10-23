@@ -356,6 +356,6 @@ async function main() {
   writeFileSync(join(OUT, 'achievements.json'), JSON.stringify(data, null, 1));
   copyFileSync(new URL('./web/achievements-ui.js', import.meta.url), join(OUT, 'achievements-ui.js'));
   writeFileSync(join(OUT, 'achievements.html'), renderPage(data));
-  console.log(`written to ${OUT}: ${unlocked} / ${list.length} unlocked`);
+  console.log(`written to ${OUT}: ${unlocked} / ${totalLevels} levels, ${list.filter((a) => a.level > 0).length} / ${list.length} achievements started`);
 }
 main().catch((e) => { console.error(e); process.exit(1); });
