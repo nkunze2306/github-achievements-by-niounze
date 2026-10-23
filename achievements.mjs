@@ -254,27 +254,28 @@ const T = (x, y, s, { size = 13, fill = '#8b8b8b', weight = 400, anchor = 'start
   `<text x="${x}" y="${y}" font-family="${FONT}" font-size="${size}" font-weight="${weight}" fill="${fill}" text-anchor="${anchor}"${spacing ? ` letter-spacing="${spacing}"` : ''}>${esc(s)}</text>`;
 
 function card(a, x, y, w, h = 92) {
+  const k = h / 92; // compact cards scale all inner sizes
   const c = a.legendary ? COL.gold : colorOf(a), locked = a.level === 0 && !a.legendary;
-  const cx = x + 18 + 36, cy = y + h / 2, r = 29, circ = 2 * Math.PI * r;
+  const r = 29 * k, cx = x + 16 * k + r + 4, cy = y + h / 2, circ = 2 * Math.PI * r, sw = 7 * k;
   const ring = a.maxed ? circ : circ * a.progress;
-  const ox = x + 18 + 72 + 16, ow = w - (ox - x) - 18;
+  const ox = cx + r + 14 * k, ow = w - (ox - x) - 16;
   const label = a.legendary ? `★ ${a.name}` : a.name;
   const badge = a.legendary ? (a.maxed ? 'UNLOCKED' : 'LEGENDARY') : `${a.level} / ${a.tiers.length}`;
-  const bw = badge.length * 7.2 + 18;
+  const bw = (badge.length * 7.2 + 18) * Math.max(k, 0.85);
   const sub = a.maxed ? `${fmtVal(a, a.value)} ${a.unit} · max level` : `${fmtVal(a, a.value)} / ${fmtVal(a, a.next)} ${a.unit}`;
   const pct = a.maxed ? '100%' : `${Math.floor(a.progress * 100)}%`;
   return [
     `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="16" fill="#121212" stroke="${a.legendary ? c + '55' : '#262626'}"/>`,
-    `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="#242424" stroke-width="7"/>`,
-    ring > 0 ? `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${c}" stroke-width="7" stroke-linecap="round" stroke-dasharray="${ring.toFixed(1)} ${circ.toFixed(1)}" transform="rotate(-90 ${cx} ${cy})"/>` : '',
-    T(cx, cy + 9, a.legendary ? (a.maxed ? '★' : '☆') : a.level, { size: 26, fill: locked ? '#555' : '#fff', weight: 700, anchor: 'middle' }),
-    T(ox, y + 32, label, { size: 15, fill: locked ? '#9a9a9a' : '#fff', weight: 700 }),
-    `<rect x="${x + w - 18 - bw}" y="${y + 16}" width="${bw}" height="22" rx="11" fill="${c}1c" stroke="${c}88"/>`,
-    T(x + w - 18 - bw / 2, y + 31, badge, { size: 11.5, fill: c, weight: 700, anchor: 'middle' }),
-    `<rect x="${ox}" y="${y + 47}" width="${ow}" height="6" rx="3" fill="#242424"/>`,
-    a.progress > 0 ? `<rect x="${ox}" y="${y + 47}" width="${Math.max(6, ow * a.progress).toFixed(1)}" height="6" rx="3" fill="${c}"/>` : '',
-    T(ox, y + 74, sub, { size: 12, fill: '#8b8b8b' }),
-    T(x + w - 18, y + 74, pct, { size: 12, fill: '#8b8b8b', anchor: 'end' }),
+    `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="#242424" stroke-width="${sw}"/>`,
+    ring > 0 ? `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${c}" stroke-width="${sw}" stroke-linecap="round" stroke-dasharray="${ring.toFixed(1)} ${circ.toFixed(1)}" transform="rotate(-90 ${cx} ${cy})"/>` : '',
+    T(cx, cy + 9 * k, a.legendary ? (a.maxed ? '★' : '☆') : a.level, { size: 26 * k, fill: locked ? '#555' : '#fff', weight: 700, anchor: 'middle' }),
+    T(ox, y + 32 * k, label, { size: 15 * Math.max(k, 0.9), fill: locked ? '#9a9a9a' : '#fff', weight: 700 }),
+    `<rect x="${x + w - 18 - bw}" y="${y + 16 * k}" width="${bw}" height="${22 * k}" rx="${11 * k}" fill="${c}1c" stroke="${c}88"/>`,
+    T(x + w - 18 - bw / 2, y + 31 * k - (k < 1 ? 1 : 0), badge, { size: 11.5 * Math.max(k, 0.85), fill: c, weight: 700, anchor: 'middle' }),
+    `<rect x="${ox}" y="${y + 47 * k}" width="${ow}" height="${6 * k}" rx="${3 * k}" fill="#242424"/>`,
+    a.progress > 0 ? `<rect x="${ox}" y="${y + 47 * k}" width="${Math.max(6, ow * a.progress).toFixed(1)}" height="${6 * k}" rx="${3 * k}" fill="${c}"/>` : '',
+    T(ox, y + 74 * k, sub, { size: 12 * Math.max(k, 0.9), fill: '#8b8b8b' }),
+    T(x + w - 18, y + 74 * k, pct, { size: 12 * Math.max(k, 0.9), fill: '#8b8b8b', anchor: 'end' }),
   ].join('');
 }
 
@@ -294,9 +295,10 @@ function renderClosest(list, unlocked, total) {
   const W = 1200, M = 30, PADX = 30, G = 16, cols = 3;
   const items = list.filter((a) => !a.maxed).sort((a, b) => b.progress - a.progress || b.level - a.level).slice(0, S.closestCount);
   const cw = (W - 2 * M - 2 * PADX + 2 * PADX - (cols - 1) * G) / cols; // = (W - 2M - 2G) / 3
-  const rows = Math.ceil(items.length / cols), H = 86 + rows * 92 + (rows - 1) * G + 30;
+  const CH = S.compactCardHeight || 70;
+  const rows = Math.ceil(items.length / cols), H = 78 + rows * CH + (rows - 1) * 12 + 24;
   const right = `${T(W - M - PADX + 30, 53, ` / ${total} unlocked`, { size: 14, fill: '#8b8b8b', anchor: 'end' })}${T(W - M - PADX + 30 - (` / ${total} unlocked`.length * 6.9), 53, unlocked, { size: 14, fill: '#fff', weight: 700, anchor: 'end' })}`;
-  const inner = items.map((a, i) => card(a, M + (i % cols) * (cw + G), 86 + Math.floor(i / cols) * (92 + G), cw)).join('');
+  const inner = items.map((a, i) => card(a, M + (i % cols) * (cw + G), 76 + Math.floor(i / cols) * (CH + 12), cw, CH)).join('');
   return frame(W, H, 'ACHIEVEMENTS · CLOSEST TO NEXT LEVEL', right, inner);
 }
 
@@ -333,7 +335,8 @@ async function main() {
   writeFileSync(join(OUT, 'achievements-all.svg'), renderAll(list, unlocked, list.length));
   writeFileSync(join(OUT, 'achievements.json'), JSON.stringify({
     updated: new Date().toISOString(), login: LOGIN || null, unlocked, total: list.length, metrics,
-    achievements: list.map(({ id, name, group, legendary, value, tiers, level, next, maxed, progress }) => ({ id, name, group, legendary: !!legendary, value, tiers, level, next, maxed, progress })),
+    achievements: list.map((a) => ({ id: a.id, name: a.name, group: a.group, legendary: !!a.legendary, color: colorOf(a), unit: a.unit, format: a.format || null, description: a.description || '', value: a.value, tiers: a.tiers, level: a.level, next: a.next, maxed: a.maxed, progress: a.progress })),
+    groups: CONFIG.groups,
   }, null, 1));
   console.log(`written to ${OUT}: ${unlocked} / ${list.length} unlocked`);
 }

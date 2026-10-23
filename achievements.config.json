@@ -10,7 +10,8 @@
     "consistentMinHours": 1,
     "bytesPerLine": 40,
     "aiCoAuthorPattern": "co-authored-by:.*(claude|anthropic|copilot|openai|chatgpt|gemini|cursor|codex|devin)",
-    "closestCount": 6
+    "closestCount": 6,
+    "compactCardHeight": 70
   },
   "groups": {
     "consistency": "Consistency",
