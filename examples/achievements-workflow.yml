@@ -1,4 +1,4 @@
-﻿name: Achievements
+name: Achievements
 on:
   schedule:
     - cron: '0 * * * *'

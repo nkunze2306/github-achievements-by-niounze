@@ -1,4 +1,4 @@
-﻿# GitHub Achievements by niounze
+# GitHub Achievements by niounze
 
 Custom, self-updating achievements for your GitHub profile. 34 achievements in 7 groups, most with several levels, plus legendary ones.
 The card shows the achievements closest to their next level, a second image lists all of them.
