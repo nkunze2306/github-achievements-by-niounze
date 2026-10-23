@@ -1,10 +1,10 @@
 # GitHub Achievements by niounze
 
 Custom, self-updating achievements for your GitHub profile. 34 achievements in 7 groups, most with several levels, plus legendary ones.
-The card shows the achievements closest to their next level, a second image lists all of them.
+The card shows your 6 **highlights** (the achievements that read best to an employer, ranked by weight in the config). Also generated: chievements-closest.svg (closest to next level), chievements-all.svg (everything) and **chievements.html**, an interactive page where every achievement expands to show all its levels.
 
 ```md
-![Achievements](achievements.svg)
+[![Achievements](achievements.svg)](https://YOUR-USER.github.io/YOUR-REPO/achievements.html)
 ```
 
 ## Use it (no copying, no editing)

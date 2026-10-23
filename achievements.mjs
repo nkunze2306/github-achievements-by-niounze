@@ -4,8 +4,9 @@
 //   achievements-all.svg  every achievement
 //   achievements.json     all values (for your own site)
 // The config is always loaded from this repo (next to this file), it cannot be overridden from the outside.
-import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'node:fs';
+import { readFileSync, writeFileSync, existsSync, mkdirSync, copyFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { renderPage } from './web/page.mjs';
 
 const CONFIG = JSON.parse(readFileSync(new URL('./achievements.config.json', import.meta.url), 'utf8'));
 const S = CONFIG.settings;
@@ -291,15 +292,23 @@ ${inner}
 `;
 }
 
-function renderClosest(list, unlocked, total) {
+function pickClosest(list) { return list.filter((a) => !a.maxed).sort((a, b) => b.progress - a.progress || b.level - a.level).slice(0, S.closestCount); }
+
+// Highlights: what reads best to an employer. score = weight x (0.4 + 0.6 x overall progress), unlocked ones first
+function pickHighlights(list) {
+  const score = (a) => (a.weight ?? 1) * (0.4 + 0.6 * Math.min(1, (a.level + (a.maxed ? 0 : a.progress)) / a.tiers.length));
+  const ranked = [...list].sort((a, b) => score(b) - score(a));
+  return [...ranked.filter((a) => a.level > 0), ...ranked.filter((a) => a.level === 0)].slice(0, S.closestCount);
+}
+
+function renderCompact(items, title, unlocked, total) {
   const W = 1200, M = 30, PADX = 30, G = 16, cols = 3;
-  const items = list.filter((a) => !a.maxed).sort((a, b) => b.progress - a.progress || b.level - a.level).slice(0, S.closestCount);
   const cw = (W - 2 * M - 2 * PADX + 2 * PADX - (cols - 1) * G) / cols; // = (W - 2M - 2G) / 3
   const CH = S.compactCardHeight || 70;
   const rows = Math.ceil(items.length / cols), H = 78 + rows * CH + (rows - 1) * 12 + 24;
   const right = `${T(W - M - PADX + 30, 53, ` / ${total} unlocked`, { size: 14, fill: '#8b8b8b', anchor: 'end' })}${T(W - M - PADX + 30 - (` / ${total} unlocked`.length * 6.9), 53, unlocked, { size: 14, fill: '#fff', weight: 700, anchor: 'end' })}`;
   const inner = items.map((a, i) => card(a, M + (i % cols) * (cw + G), 76 + Math.floor(i / cols) * (CH + 12), cw, CH)).join('');
-  return frame(W, H, 'ACHIEVEMENTS · CLOSEST TO NEXT LEVEL', right, inner);
+  return frame(W, H, title, right, inner);
 }
 
 function renderAll(list, unlocked, total) {
@@ -331,13 +340,18 @@ async function main() {
   }
   const list = evaluate(metrics, hasWaka);
   const unlocked = list.filter((a) => a.level > 0).length;
-  writeFileSync(join(OUT, 'achievements.svg'), renderClosest(list, unlocked, list.length));
+  const highlights = pickHighlights(list), closest = pickClosest(list);
+  writeFileSync(join(OUT, 'achievements.svg'), renderCompact(highlights, 'ACHIEVEMENTS · HIGHLIGHTS', unlocked, list.length));
+  writeFileSync(join(OUT, 'achievements-closest.svg'), renderCompact(closest, 'ACHIEVEMENTS · CLOSEST TO NEXT LEVEL', unlocked, list.length));
   writeFileSync(join(OUT, 'achievements-all.svg'), renderAll(list, unlocked, list.length));
-  writeFileSync(join(OUT, 'achievements.json'), JSON.stringify({
-    updated: new Date().toISOString(), login: LOGIN || null, unlocked, total: list.length, metrics,
-    achievements: list.map((a) => ({ id: a.id, name: a.name, group: a.group, legendary: !!a.legendary, color: colorOf(a), unit: a.unit, format: a.format || null, description: a.description || '', value: a.value, tiers: a.tiers, level: a.level, next: a.next, maxed: a.maxed, progress: a.progress })),
+  const data = {
+    updated: new Date().toISOString(), login: LOGIN || null, unlocked, total: list.length, highlights: highlights.map((a) => a.id), metrics,
+    achievements: list.map((a) => ({ id: a.id, name: a.name, group: a.group, legendary: !!a.legendary, color: colorOf(a), weight: a.weight ?? 1, unit: a.unit, format: a.format || null, description: a.description || '', value: a.value, tiers: a.tiers, level: a.level, next: a.next, maxed: a.maxed, progress: a.progress })),
     groups: CONFIG.groups,
-  }, null, 1));
+  };
+  writeFileSync(join(OUT, 'achievements.json'), JSON.stringify(data, null, 1));
+  copyFileSync(new URL('./web/achievements-ui.js', import.meta.url), join(OUT, 'achievements-ui.js'));
+  writeFileSync(join(OUT, 'achievements.html'), renderPage(data));
   console.log(`written to ${OUT}: ${unlocked} / ${list.length} unlocked`);
 }
 main().catch((e) => { console.error(e); process.exit(1); });
