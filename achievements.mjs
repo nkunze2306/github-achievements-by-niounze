@@ -256,8 +256,11 @@ const fmtVal = (a, v) => (a.format === 'hours' ? `${Math.round(v)}h` : compact(v
 const T = (x, y, s, { size = 13, fill = '#8b8b8b', weight = 400, anchor = 'start', spacing = 0 } = {}) =>
   `<text x="${x}" y="${y}" font-family="${FONT}" font-size="${size}" font-weight="${weight}" fill="${fill}" text-anchor="${anchor}"${spacing ? ` letter-spacing="${spacing}"` : ''}>${esc(s)}</text>`;
 
+// Every icon is cropped to its pixels, scaled so its longest side equals `size`, and centred on (cx, cy)
 function iconSvg(ic, cx, cy, size, opacity = 1) {
-  const p = size / 12, x0 = cx - size / 2, y0 = cy - size / 2;
+  let x1 = 12, x2 = -1, y1 = 12, y2 = -1;
+  ic.rows.forEach((row, y) => { for (let x = 0; x < 12; x++) if (row[x] !== '.') { x1 = Math.min(x1, x); x2 = Math.max(x2, x); y1 = Math.min(y1, y); y2 = Math.max(y2, y); } });
+  const w = x2 - x1 + 1, h = y2 - y1 + 1, p = size / Math.max(w, h), ox = cx - (w * p) / 2 - x1 * p, oy = cy - (h * p) / 2 - y1 * p;
   let s = `<g shape-rendering="crispEdges"${opacity < 1 ? ` opacity="${opacity}"` : ''}>`;
   ic.rows.forEach((row, y) => {
     for (let x = 0; x < 12; ) {
@@ -265,7 +268,7 @@ function iconSvg(ic, cx, cy, size, opacity = 1) {
       if (ch === '.') { x++; continue; }
       let e = x;
       while (e < 12 && row[e] === ch) e++;
-      s += `<rect x="${(x0 + x * p).toFixed(2)}" y="${(y0 + y * p).toFixed(2)}" width="${((e - x) * p + 0.03).toFixed(2)}" height="${(p + 0.03).toFixed(2)}" fill="${ic.palette[ch]}"/>`;
+      s += `<rect x="${(ox + x * p).toFixed(2)}" y="${(oy + y * p).toFixed(2)}" width="${((e - x) * p + 0.03).toFixed(2)}" height="${(p + 0.03).toFixed(2)}" fill="${ic.palette[ch]}"/>`;
       x = e;
     }
   });
@@ -287,7 +290,7 @@ function card(a, x, y, w, h = 92) {
     `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="16" fill="#121212" stroke="${a.legendary || a.maxed ? c + '55' : '#262626'}"/>`,
     `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="#242424" stroke-width="${sw}"/>`,
     ring > 0 ? `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${c}" stroke-width="${sw}" stroke-linecap="round" stroke-dasharray="${ring.toFixed(1)} ${circ.toFixed(1)}" transform="rotate(-90 ${cx} ${cy})"/>` : '',
-    a.icon ? iconSvg(a.icon, cx, cy, r * 1.3, locked ? 0.45 : 1) : T(cx, cy + 9 * k, a.legendary ? (a.maxed ? '★' : '☆') : a.level, { size: 26 * k, fill: locked ? '#555' : '#fff', weight: 700, anchor: 'middle' }),
+    a.icon ? iconSvg(a.icon, cx, cy, r * 1.05, locked ? 0.45 : 1) : T(cx, cy + 9 * k, a.legendary ? (a.maxed ? '★' : '☆') : a.level, { size: 26 * k, fill: locked ? '#555' : '#fff', weight: 700, anchor: 'middle' }),
     a.icon ? `<circle cx="${(cx + r * 0.74).toFixed(1)}" cy="${(cy + r * 0.74).toFixed(1)}" r="${(9 * k).toFixed(1)}" fill="#0b0b0b" stroke="${c}" stroke-width="${1.6 * k}"/>` + T(cx + r * 0.74, cy + r * 0.74 + 4 * k, a.legendary ? (a.maxed ? '★' : '☆') : a.level, { size: 11.5 * k, fill: locked ? '#777' : '#fff', weight: 700, anchor: 'middle' }) : '',
     T(ox, y + 32 * k, label, { size: 15 * Math.max(k, 0.9), fill: locked ? '#9a9a9a' : '#fff', weight: 700 }),
     `<rect x="${x + w - 18 - bw}" y="${y + 16 * k}" width="${bw}" height="${22 * k}" rx="${11 * k}" fill="${c}1c" stroke="${c}88"/>`,
