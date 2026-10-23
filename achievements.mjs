@@ -342,13 +342,14 @@ async function main() {
     if (hasWaka) Object.assign(metrics, await collectWaka(join(OUT, '.achievements-state.json')));
   }
   const list = evaluate(metrics, hasWaka);
-  const unlocked = list.filter((a) => a.level > 0).length;
+  // every single level counts; one-level achievements count as 1
+  const unlocked = list.reduce((s, a) => s + a.level, 0), totalLevels = list.reduce((s, a) => s + a.tiers.length, 0);
   const highlights = pickHighlights(list), closest = pickClosest(list);
-  writeFileSync(join(OUT, 'achievements.svg'), renderCompact(highlights, 'ACHIEVEMENTS · HIGHLIGHTS', unlocked, list.length));
-  writeFileSync(join(OUT, 'achievements-closest.svg'), renderCompact(closest, 'ACHIEVEMENTS · CLOSEST TO NEXT LEVEL', unlocked, list.length));
-  writeFileSync(join(OUT, 'achievements-all.svg'), renderAll(list, unlocked, list.length));
+  writeFileSync(join(OUT, 'achievements.svg'), renderCompact(highlights, 'ACHIEVEMENTS · HIGHLIGHTS', unlocked, totalLevels));
+  writeFileSync(join(OUT, 'achievements-closest.svg'), renderCompact(closest, 'ACHIEVEMENTS · CLOSEST TO NEXT LEVEL', unlocked, totalLevels));
+  writeFileSync(join(OUT, 'achievements-all.svg'), renderAll(list, unlocked, totalLevels));
   const data = {
-    updated: new Date().toISOString(), login: LOGIN || null, unlocked, total: list.length, highlights: highlights.map((a) => a.id), metrics,
+    updated: new Date().toISOString(), login: LOGIN || null, unlocked, total: totalLevels, achievementsUnlocked: list.filter((a) => a.level > 0).length, achievementsTotal: list.length, highlights: highlights.map((a) => a.id), metrics,
     achievements: list.map((a) => ({ id: a.id, name: a.name, group: a.group, legendary: !!a.legendary, color: colorOf(a), weight: a.weight ?? 1, unit: a.unit, format: a.format || null, description: a.description || '', value: a.value, tiers: a.tiers, level: a.level, next: a.next, maxed: a.maxed, progress: a.progress })),
     groups: CONFIG.groups,
   };
