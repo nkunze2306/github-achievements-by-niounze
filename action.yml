@@ -1,0 +1,32 @@
+﻿name: GitHub Achievements by niounze
+description: Custom, self-updating achievements for your GitHub profile (SVG cards + JSON).
+author: niounze
+inputs:
+  token:
+    description: GitHub token with read access (a PAT with repo scope also counts private repos)
+    required: true
+  login:
+    description: GitHub username to evaluate (default is the repo owner)
+    required: false
+    default: ''
+  wakatime-key:
+    description: Optional WakaTime API key or OAuth token (enables Coding Time, Marathon, Consistent)
+    required: false
+    default: ''
+  output-dir:
+    description: Folder in your repo for the generated files
+    required: false
+    default: '.'
+runs:
+  using: composite
+  steps:
+    - uses: actions/setup-node@v4
+      with:
+        node-version: 20
+    - name: Generate achievements
+      shell: bash
+      env:
+        STATS_TOKEN: ${{ inputs.token }}
+        STATS_LOGIN: ${{ inputs.login || github.repository_owner }}
+        WAKATIME_API_KEY: ${{ inputs.wakatime-key }}
+      run: node "${{ github.action_path }}/achievements.mjs" --out "${{ inputs.output-dir }}"
