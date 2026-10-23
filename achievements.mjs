@@ -290,7 +290,7 @@ function card(a, x, y, w, h = 92) {
     `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="16" fill="#121212" stroke="${a.legendary || a.maxed ? c + '55' : '#262626'}"/>`,
     `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="#242424" stroke-width="${sw}"/>`,
     ring > 0 ? `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${c}" stroke-width="${sw}" stroke-linecap="round" stroke-dasharray="${ring.toFixed(1)} ${circ.toFixed(1)}" transform="rotate(-90 ${cx} ${cy})"/>` : '',
-    a.icon ? iconSvg(a.icon, cx, cy, r * 1.05, locked ? 0.45 : 1) : T(cx, cy + 9 * k, a.legendary ? (a.maxed ? '★' : '☆') : a.level, { size: 26 * k, fill: locked ? '#555' : '#fff', weight: 700, anchor: 'middle' }),
+    a.icon ? iconSvg(a.icon, cx, cy, r * 0.945, locked ? 0.45 : 1) : T(cx, cy + 9 * k, a.legendary ? (a.maxed ? '★' : '☆') : a.level, { size: 26 * k, fill: locked ? '#555' : '#fff', weight: 700, anchor: 'middle' }),
     a.icon ? `<circle cx="${(cx + r * 0.74).toFixed(1)}" cy="${(cy + r * 0.74).toFixed(1)}" r="${(9 * k).toFixed(1)}" fill="#0b0b0b" stroke="${c}" stroke-width="${1.6 * k}"/>` + T(cx + r * 0.74, cy + r * 0.74 + 4 * k, a.legendary ? (a.maxed ? '★' : '☆') : a.level, { size: 11.5 * k, fill: locked ? '#777' : '#fff', weight: 700, anchor: 'middle' }) : '',
     T(ox, y + 32 * k, label, { size: 15 * Math.max(k, 0.9), fill: locked ? '#9a9a9a' : '#fff', weight: 700 }),
     `<rect x="${x + w - 18 - bw}" y="${y + 16 * k}" width="${bw}" height="${22 * k}" rx="${11 * k}" fill="${c}1c" stroke="${c}88"/>`,
