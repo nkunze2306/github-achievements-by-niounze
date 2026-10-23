@@ -44,7 +44,7 @@
   function fv(a, v) { return a.format === 'hours' ? Math.round(v) + 'h' : short(v); }
 
   function card(a) {
-    var c = a.color || '#38bdf8', lock = a.level === 0 && !a.legendary, r = 18, circ = 2 * Math.PI * r;
+    var c = a.maxed ? '#ffd34e' : (a.color || '#38bdf8'), lock = a.level === 0 && !a.legendary, r = 18, circ = 2 * Math.PI * r;
     var sub = a.maxed ? fv(a, a.value) + ' ' + a.unit + ' · max level' : fv(a, a.value) + ' / ' + fv(a, a.next) + ' ' + a.unit;
     var badge = a.legendary ? (a.maxed ? 'UNLOCKED' : 'LEGENDARY') : a.level + ' / ' + a.tiers.length;
     var pctv = a.maxed ? 100 : Math.floor(a.progress * 100);
@@ -54,7 +54,7 @@
       return '<div class="ach-tier' + (done ? ' done' : '') + (next ? ' next' : '') + '"><span class="m"' + (done ? ' style="background:' + c + '"' : next ? ' style="border-color:' + c + '"' : '') + '>' + (done ? '✓' : '') + '</span>' +
         '<span class="n">' + (a.legendary ? 'Legendary: ' : 'Level ' + (i + 1) + ': ') + fv(a, t) + ' ' + esc(a.unit) + '</span><span class="s">' + st + '</span></div>';
     }).join('');
-    return '<div class="ach-card' + (a.legendary ? ' leg' : '') + (lock ? ' lock' : '') + '">' +
+    return '<div class="ach-card' + (a.legendary || a.maxed ? ' leg' : '') + (lock ? ' lock' : '') + '">' +
       '<button class="ach-row" aria-expanded="false"><svg width="58" height="58" viewBox="0 0 46 46" style="flex:none"><circle cx="23" cy="23" r="' + r + '" fill="none" stroke="#242424" stroke-width="4.5"/>' +
       '<circle cx="23" cy="23" r="' + r + '" fill="none" stroke="' + c + '" stroke-width="4.5" stroke-linecap="round" stroke-dasharray="' + (circ * (a.maxed ? 1 : a.progress)).toFixed(1) + ' ' + circ.toFixed(1) + '" transform="rotate(-90 23 23)"/>' +
       '<text x="23" y="28.5" text-anchor="middle" font-size="16" font-weight="700" fill="' + (lock ? '#555' : '#fff') + '">' + (a.legendary ? (a.maxed ? '★' : '☆') : a.level) + '</text></svg>' +

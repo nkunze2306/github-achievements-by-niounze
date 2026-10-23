@@ -246,7 +246,7 @@ function evaluate(metrics, hasWaka) {
 
 // ---------------------------------------------------------------- Rendering
 const COL = { green: '#34f5a0', blue: '#38bdf8', pink: '#ff5c9a', purple: '#b794ff', yellow: '#ffcf4d', orange: '#ff9f43', gold: '#ffd34e' };
-const colorOf = (a) => (a.legendary ? COL.gold : COL[a.color] || a.color || COL.blue);
+const colorOf = (a) => (a.legendary || a.maxed ? COL.gold : COL[a.color] || a.color || COL.blue); // finished = gold
 const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 const FONT = "-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif";
 const compact = (n) => (n >= 1e6 ? `${+(n / 1e6).toFixed(1)}M` : n >= 1e4 ? `${Math.round(n / 1e3)}k` : n >= 1e3 ? `${+(n / 1e3).toFixed(1)}k` : String(Math.round(n)));
@@ -256,7 +256,7 @@ const T = (x, y, s, { size = 13, fill = '#8b8b8b', weight = 400, anchor = 'start
 
 function card(a, x, y, w, h = 92) {
   const k = h / 92; // compact cards scale all inner sizes
-  const c = a.legendary ? COL.gold : colorOf(a), locked = a.level === 0 && !a.legendary;
+  const c = colorOf(a), locked = a.level === 0 && !a.legendary;
   const r = 29 * k, cx = x + 16 * k + r + 4, cy = y + h / 2, circ = 2 * Math.PI * r, sw = 7 * k;
   const ring = a.maxed ? circ : circ * a.progress;
   const ox = cx + r + 14 * k, ow = w - (ox - x) - 16;
@@ -266,7 +266,7 @@ function card(a, x, y, w, h = 92) {
   const sub = a.maxed ? `${fmtVal(a, a.value)} ${a.unit} · max level` : `${fmtVal(a, a.value)} / ${fmtVal(a, a.next)} ${a.unit}`;
   const pct = a.maxed ? '100%' : `${Math.floor(a.progress * 100)}%`;
   return [
-    `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="16" fill="#121212" stroke="${a.legendary ? c + '55' : '#262626'}"/>`,
+    `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="16" fill="#121212" stroke="${a.legendary || a.maxed ? c + '55' : '#262626'}"/>`,
     `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="#242424" stroke-width="${sw}"/>`,
     ring > 0 ? `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${c}" stroke-width="${sw}" stroke-linecap="round" stroke-dasharray="${ring.toFixed(1)} ${circ.toFixed(1)}" transform="rotate(-90 ${cx} ${cy})"/>` : '',
     T(cx, cy + 9 * k, a.legendary ? (a.maxed ? '★' : '☆') : a.level, { size: 26 * k, fill: locked ? '#555' : '#fff', weight: 700, anchor: 'middle' }),
