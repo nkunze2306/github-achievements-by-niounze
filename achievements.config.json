@@ -44,7 +44,7 @@
 
     { "id": "line-machine", "group": "craft", "name": "Line Machine", "metric": "linesAdded", "unit": "lines", "tiers": [1000, 10000, 50000, 100000, 500000, 1000000, 5000000, 10000000], "color": "pink", "description": "Lines of code you added" },
     { "id": "refactorer", "group": "craft", "name": "Refactorer", "metric": "linesDeleted", "unit": "lines", "tiers": [1000, 5000, 10000, 50000, 100000], "color": "orange", "description": "Lines of code you deleted" },
-    { "id": "polyglot", "group": "craft", "name": "Polyglot", "metric": "languages", "unit": "languages", "tiers": [3, 5, 8, 12, 20], "color": "yellow", "description": "Different languages across your repos" },
+    { "id": "polyglot", "group": "craft", "name": "Polyglot", "metric": "languages", "unit": "languages", "tiers": [3, 5, 8, 12, 20, 30], "color": "yellow", "description": "Different languages across your repos" },
     { "id": "deep-diver", "group": "craft", "name": "Deep Diver", "metric": "topLanguageLines", "unit": "lines", "tiers": [10000, 50000, 100000], "color": "blue", "description": "Estimated lines in your biggest language" },
     { "id": "repo-builder", "group": "craft", "name": "Repo Builder", "metric": "ownRepos", "unit": "repos", "tiers": [1, 5, 15, 30, 50], "color": "green", "description": "Repos you own (without forks)" },
     { "id": "hand-crafted", "group": "craft", "name": "Hand-Crafted", "metric": "handLines", "unit": "lines", "tiers": [10000, 50000, 100000], "color": "green", "description": "Lines you wrote yourself, without AI co-author" },
@@ -62,6 +62,7 @@
 
     { "id": "unbroken", "group": "legendary", "name": "Unbroken", "metric": "longestStreak", "unit": "days", "tiers": [365], "legendary": true, "description": "A 365 day streak without a break" },
     { "id": "supernova", "group": "legendary", "name": "Supernova", "metric": "maxRepoStars", "unit": "stars", "tiers": [1000], "legendary": true, "description": "A single repo with 1,000 stars" },
+    { "id": "babel", "group": "legendary", "name": "Babel", "metric": "languages", "unit": "languages", "tiers": [50], "legendary": true, "description": "Code in 50 different languages" },
     { "id": "grandmaster", "group": "legendary", "name": "Grandmaster", "metric": "maxedOthers", "unit": "maxed", "tiers": ["auto"], "legendary": true, "description": "Every other achievement on its highest level" }
   ]
 }
