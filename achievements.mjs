@@ -220,7 +220,7 @@ async function collectWaka(stateFile) {
   const tracked = Object.values(st.days).reduce((a, b) => a + b, 0);
   const good = Object.entries(st.days).filter(([, s]) => s >= S.consistentMinHours * 3600).map(([d]) => d).sort();
   return {
-    wakaHours: Math.max(st.apiSec, tracked) / 3600,
+    wakaHours: (st.apiSec || tracked) / 3600, // same rule as the dashboard: WakaTime's all-time total first (daily sums also contain non-coding categories)
     marathonHours: Math.max(0, ...Object.values(st.sessions)) / 3600,
     consistentDays: longestRun(good),
   };
