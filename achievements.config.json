@@ -26,10 +26,10 @@
   "achievements": [
     { "id": "committer", "weight": 10, "group": "consistency", "name": "Committer", "metric": "commits", "unit": "commits", "tiers": [10, 100, 500, 1000, 5000, 10000], "color": "consistency", "description": "Total commits you authored" },
     { "id": "streak-keeper", "weight": 7, "group": "consistency", "name": "Streak Keeper", "metric": "longestStreak", "unit": "days", "tiers": [3, 7, 14, 30, 60, 100, 365], "color": "consistency", "description": "Longest streak of consecutive active days" },
-    { "id": "daily-grinder", "weight": 6, "group": "consistency", "name": "Daily Grinder", "metric": "activeDays", "unit": "active days", "tiers": [25, 100, 250, 500], "color": "consistency", "description": "Days with at least one contribution" },
+    { "id": "daily-grinder", "weight": 6, "group": "consistency", "name": "Daily Grinder", "metric": "activeDays", "unit": "active days", "tiers": [25, 100, 250, 500, 1000], "color": "consistency", "description": "Days with at least one contribution" },
     { "id": "night-owl", "weight": 2, "group": "consistency", "name": "Night Owl", "metric": "nightCommits", "unit": "night commits", "tiers": [50, 250, 1000], "color": "consistency", "description": "Commits between 0:00 and 5:00" },
     { "id": "early-bird", "weight": 2, "group": "consistency", "name": "Early Bird", "metric": "earlyCommits", "unit": "early commits", "tiers": [50, 250, 1000], "color": "consistency", "description": "Commits between 5:00 and 8:00" },
-    { "id": "weekend-warrior", "weight": 3, "group": "consistency", "name": "Weekend Warrior", "metric": "weekendCommits", "unit": "weekend commits", "tiers": [25, 100, 300], "color": "consistency", "description": "Commits on Saturdays and Sundays" },
+    { "id": "weekend-warrior", "weight": 3, "group": "consistency", "name": "Weekend Warrior", "metric": "weekendCommits", "unit": "weekend commits", "tiers": [25, 100, 300, 500], "color": "consistency", "description": "Commits on Saturdays and Sundays" },
     { "id": "commit-storm", "weight": 3, "group": "consistency", "name": "Commit Storm", "metric": "maxCommitsPerDay", "unit": "commits in a day", "tiers": [10, 25, 50], "color": "consistency", "description": "Most commits on a single day" },
 
     { "id": "pull-shark", "weight": 10, "group": "collaboration", "name": "Pull Shark", "metric": "prsMerged", "unit": "merged PRs", "tiers": [1, 10, 50, 200, 500], "color": "collaboration", "description": "Merged pull requests" },
@@ -44,16 +44,16 @@
     { "id": "follower-club", "weight": 3, "group": "impact", "name": "Follower Club", "metric": "followers", "unit": "followers", "tiers": [10, 50, 250, 1000], "color": "impact", "description": "People following you" },
 
     { "id": "line-machine", "weight": 6, "group": "craft", "name": "Line Machine", "metric": "linesAdded", "unit": "lines", "tiers": [1000, 10000, 50000, 100000, 500000, 1000000, 5000000, 10000000], "color": "craft", "description": "Lines of code you added" },
-    { "id": "refactorer", "weight": 5, "group": "craft", "name": "Refactorer", "metric": "linesDeleted", "unit": "lines", "tiers": [1000, 5000, 10000, 50000, 100000], "color": "craft", "description": "Lines of code you deleted" },
+    { "id": "refactorer", "weight": 5, "group": "craft", "name": "Refactorer", "metric": "linesDeleted", "unit": "lines", "tiers": [1000, 5000, 10000, 50000, 100000, 500000, 1000000], "color": "craft", "description": "Lines of code you deleted" },
     { "id": "polyglot", "weight": 6, "group": "craft", "name": "Polyglot", "metric": "languages", "unit": "languages", "tiers": [3, 5, 8, 12, 20, 30], "color": "craft", "description": "Different languages across your repos" },
-    { "id": "deep-diver", "weight": 6, "group": "craft", "name": "Deep Diver", "metric": "topLanguageLines", "unit": "lines", "tiers": [10000, 50000, 100000], "color": "craft", "description": "Estimated lines in your biggest language" },
+    { "id": "deep-diver", "weight": 6, "group": "craft", "name": "Deep Diver", "metric": "topLanguageLines", "unit": "lines", "tiers": [10000, 50000, 100000, 250000], "color": "craft", "description": "Estimated lines in your biggest language" },
     { "id": "repo-builder", "weight": 5, "group": "craft", "name": "Repo Builder", "metric": "ownRepos", "unit": "repos", "tiers": [1, 5, 15, 30, 50], "color": "craft", "description": "Repos you own (without forks)" },
-    { "id": "hand-crafted", "weight": 5, "group": "craft", "name": "Hand-Crafted", "metric": "handLines", "unit": "lines", "tiers": [10000, 50000, 100000], "color": "craft", "description": "Lines you wrote yourself, without AI co-author" },
+    { "id": "hand-crafted", "weight": 5, "group": "craft", "name": "Hand-Crafted", "metric": "handLines", "unit": "lines", "tiers": [10000, 50000, 100000, 250000, 500000, 1000000], "color": "craft", "description": "Lines you wrote yourself, without AI co-author" },
 
     { "id": "pair-programmer", "weight": 6, "group": "ai-time", "name": "Pair Programmer", "metric": "aiCommits", "unit": "AI commits", "tiers": [10, 50, 250, 1000], "color": "ai", "description": "Commits with an AI co-author" },
-    { "id": "coding-time", "weight": 7, "group": "ai-time", "name": "Coding Time", "metric": "wakaHours", "unit": "tracked", "format": "hours", "tiers": [10, 50, 100, 500, 1000, 2500], "color": "time", "requires": "wakatime", "description": "Coding time tracked by WakaTime" },
-    { "id": "marathon", "weight": 3, "group": "ai-time", "name": "Marathon", "metric": "marathonHours", "unit": "session", "format": "hours", "tiers": [4, 8, 12], "color": "time", "requires": "wakatime", "description": "Longest coding session without a break" },
-    { "id": "consistent", "weight": 5, "group": "ai-time", "name": "Consistent", "metric": "consistentDays", "unit": "days", "tiers": [7, 30, 100], "color": "time", "requires": "wakatime", "description": "Days in a row with at least 1 h of coding" },
+    { "id": "coding-time", "weight": 7, "group": "ai-time", "name": "Coding Time", "metric": "wakaHours", "unit": "tracked", "format": "hours", "tiers": [10, 50, 100, 500, 1000, 2500, 5000], "color": "time", "requires": "wakatime", "description": "Coding time tracked by WakaTime" },
+    { "id": "marathon", "weight": 3, "group": "ai-time", "name": "Marathon", "metric": "marathonHours", "unit": "session", "format": "hours", "tiers": [4, 8, 12, 24, 48], "color": "time", "requires": "wakatime", "description": "Longest coding session without a break" },
+    { "id": "consistent", "weight": 5, "group": "ai-time", "name": "Consistent", "metric": "consistentDays", "unit": "days", "tiers": [7, 30, 100, 365], "color": "time", "requires": "wakatime", "description": "Days in a row with at least 1 h of coding" },
 
     { "id": "unicorn", "weight": 1, "group": "fun", "name": "Unicorn", "metric": "unicornCommits", "unit": "commits", "tiers": [1], "color": "fun", "description": "A commit on February 29th" },
     { "id": "christmas-coder", "weight": 1, "group": "fun", "name": "Christmas Coder", "metric": "christmasCommits", "unit": "commits", "tiers": [1], "color": "fun", "description": "A commit on December 24th or 25th" },
