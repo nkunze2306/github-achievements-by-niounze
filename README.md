@@ -1,2 +1,5 @@
-# profile-stats-dashboard
-Self-updating all-time GitHub profile stats dashboard (SVG for the README + GitHub Pages site)
+# GitHub Achievements
+
+Custom, self-updating achievements for your GitHub profile.
+
+**by niounze**
