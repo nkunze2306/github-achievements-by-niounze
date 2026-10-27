@@ -7,6 +7,7 @@
 import { readFileSync, writeFileSync, existsSync, mkdirSync, copyFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { renderPage } from './web/page.mjs';
+import { collectGitLabCommits } from './gitlab.mjs';
 
 const ICONS = JSON.parse(readFileSync(new URL('./web/icons.json', import.meta.url), 'utf8')); // 12x12 pixel icons, one per achievement id
 const CONFIG = JSON.parse(readFileSync(new URL('./achievements.config.json', import.meta.url), 'utf8'));
@@ -90,6 +91,26 @@ async function collectGitHub() {
   const fmt = new Intl.DateTimeFormat('en-GB', { timeZone: TZ, year: 'numeric', month: '2-digit', day: '2-digit', weekday: 'short', hour: '2-digit', hourCycle: 'h23' });
   const seen = new Set(), daily = new Map(), committed = new Set();
   Object.assign(m, { commits: 0, nightCommits: 0, earlyCommits: 0, weekendCommits: 0, aiCommits: 0, linesAdded: 0, linesDeleted: 0, handLines: 0, unicornCommits: 0, christmasCommits: 0, newYearCommits: 0 });
+  const addCommit = (c, repoName) => {
+    if (seen.has(c.oid)) return;
+    seen.add(c.oid);
+    committed.add(repoName);
+    const p = Object.fromEntries(fmt.formatToParts(new Date(c.committedDate)).map((x) => [x.type, x.value]));
+    const hour = Number(p.hour), day = `${p.year}-${p.month}-${p.day}`, md = `${p.month}-${p.day}`;
+    daily.set(day, (daily.get(day) || 0) + 1);
+    if (hour >= S.nightHours[0] && hour < S.nightHours[1]) m.nightCommits++;
+    if (hour >= S.earlyHours[0] && hour < S.earlyHours[1]) m.earlyCommits++;
+    if (p.weekday === 'Sat' || p.weekday === 'Sun') m.weekendCommits++;
+    if (md === '02-29') m.unicornCommits++;
+    if (md === '12-24' || md === '12-25') m.christmasCommits++;
+    if (md === '01-01') m.newYearCommits++;
+    const ai = AI_RE.test(c.message);
+    if (ai) m.aiCommits++;
+    if (c.parents.totalCount > 1) return; // merge commits carry other people's code
+    m.linesAdded += c.additions;
+    m.linesDeleted += c.deletions;
+    if (!ai) m.handLines += c.additions;
+  };
   for (const r of repos) {
     const [owner, name] = r.nameWithOwner.split('/');
     try {
@@ -108,32 +129,15 @@ async function collectGitHub() {
             ref(qualifiedName:$ref){ target{ ... on Commit{ history(first:100,after:$after,author:{id:$id}){ pageInfo{hasNextPage endCursor} nodes{ oid committedDate additions deletions message parents{totalCount} } } } } } } }`,
           { owner, name, ref: `refs/heads/${br}`, id: u.id, after })).repository?.ref?.target?.history;
           if (!h) break;
-          for (const c of h.nodes) {
-            if (seen.has(c.oid)) continue;
-            seen.add(c.oid);
-            committed.add(r.nameWithOwner);
-            const p = Object.fromEntries(fmt.formatToParts(new Date(c.committedDate)).map((x) => [x.type, x.value]));
-            const hour = Number(p.hour), day = `${p.year}-${p.month}-${p.day}`, md = `${p.month}-${p.day}`;
-            daily.set(day, (daily.get(day) || 0) + 1);
-            if (hour >= S.nightHours[0] && hour < S.nightHours[1]) m.nightCommits++;
-            if (hour >= S.earlyHours[0] && hour < S.earlyHours[1]) m.earlyCommits++;
-            if (p.weekday === 'Sat' || p.weekday === 'Sun') m.weekendCommits++;
-            if (md === '02-29') m.unicornCommits++;
-            if (md === '12-24' || md === '12-25') m.christmasCommits++;
-            if (md === '01-01') m.newYearCommits++;
-            const ai = AI_RE.test(c.message);
-            if (ai) m.aiCommits++;
-            if (c.parents.totalCount > 1) continue; // merge commits carry other people's code
-            m.linesAdded += c.additions;
-            m.linesDeleted += c.deletions;
-            if (!ai) m.handLines += c.additions;
-          }
+          for (const c of h.nodes) addCommit(c, r.nameWithOwner);
           if (!h.pageInfo.hasNextPage) break;
           after = h.pageInfo.endCursor;
         }
       }
     } catch (e) { console.warn(`skipped ${r.nameWithOwner}: ${e.message.slice(0, 120)}`); }
   }
+  // optional GitLab: only commits authored by you (see gitlab.mjs); duplicates of GitHub commits are skipped by id
+  for (const c of await collectGitLabCommits()) addCommit(c, 'gitlab');
   m.commits = seen.size;
   // languages: from every repo you committed to; lines per language = your added lines split by the language share (estimate)
   const lang = new Map();

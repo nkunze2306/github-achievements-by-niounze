@@ -17,6 +17,14 @@ inputs:
     description: Folder in your repo for the generated files
     required: false
     default: '.'
+  gitlab-sources:
+    description: 'Optional JSON, e.g. [{"host":"https://gitlab.com","token":"..."}]. Only commits authored by you (gitlab-author-emails) are counted.'
+    required: false
+    default: ''
+  gitlab-author-emails:
+    description: Comma separated commit e-mail addresses of yours on GitLab
+    required: false
+    default: ''
 runs:
   using: composite
   steps:
@@ -29,4 +37,6 @@ runs:
         STATS_TOKEN: ${{ inputs.token }}
         STATS_LOGIN: ${{ inputs.login || github.repository_owner }}
         WAKATIME_API_KEY: ${{ inputs.wakatime-key }}
+        GITLAB_SOURCES: ${{ inputs.gitlab-sources }}
+        GITLAB_AUTHOR_EMAILS: ${{ inputs.gitlab-author-emails }}
       run: node "${{ github.action_path }}/achievements.mjs" --out "${{ inputs.output-dir }}"
