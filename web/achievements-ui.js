@@ -224,11 +224,11 @@
 
   function treeTip(a, byId) {
     var lock = a.level === 0 && !a.legendary, secret = lock && !(a.progress > 0), c = a.legendary ? '#ffd34e' : groupColor(a, byId), tr = tierOf(a);
-    if (secret) return '<b>???</b><div class="d">Noch gesperrt. Fang an, dann zeigt sich mehr.</div>';
+    if (secret) return '<b>???</b><div class="d">Still locked. Get started and more will show up.</div>';
     var line = a.next ? fv(a, a.value) + ' / ' + fv(a, a.next) + ' ' + esc(a.unit) : 'Max level';
     return '<b style="color:' + (a.legendary ? '#ffd34e' : '#fff') + '">' + (a.legendary ? '★ ' : '') + esc(a.name) + '</b><div class="d">' + esc(a.description || '') + '</div><div>' + line + '</div>' +
       '<div class="pb"><i style="width:' + Math.round((a.maxed ? 1 : a.progress) * 100) + '%;background:' + c + '"></i></div><div class="pips">' + a.tiers.map(function (_, i) { return '<s' + (i < a.level ? ' style="background:' + c + '"' : '') + '></s>'; }).join('') + '</div>' +
-      '<div class="r" style="color:' + tr.c + '">' + tr.name.toUpperCase() + ' · Stufe ' + a.level + ' / ' + a.tiers.length + '</div>';
+      '<div class="r" style="color:' + tr.c + '">' + tr.name.toUpperCase() + ' · Level ' + a.level + ' / ' + a.tiers.length + '</div>';
   }
 
   function mount(root, j, opt) {
@@ -245,7 +245,7 @@
     function draw() {
       var body;
       if (view === 'tree') {
-        body = '<div class="ach-tree">' + treeSvg(j, byId) + '</div><div class="ach-tree-hint">Ziehen oder scrollen, Knoten antippen oder darüberfahren für Details. Der goldene Rahmen in der Mitte zeigt den Fortschritt zum Grandmaster.</div>';
+        body = '<div class="ach-tree">' + treeSvg(j, byId) + '</div><div class="ach-tree-hint">Drag or scroll, tap or hover a node for details. The golden frame in the middle shows your progress towards Grandmaster.</div>';
       } else if (view === 'all') {
         body = Object.keys(j.groups || {}).map(function (g) {
           var items = list.filter(function (a) { return a.group === g; });
