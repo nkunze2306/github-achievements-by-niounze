@@ -64,7 +64,20 @@
     '.ach-tip .pb{height:5px;background:#222a33;border-radius:3px;margin:5px 0}.ach-tip .pb i{display:block;height:100%;border-radius:3px}',
     '.ach-tip .pips{display:flex;gap:3px;margin-top:6px}.ach-tip .pips s{width:16px;height:5px;background:#222a33;display:block}',
     '.ach-tip .r{font-size:10.5px;font-weight:700;letter-spacing:.5px;margin-top:6px}',
-    '.ach-tree-hint{margin:8px 2px 0;font-size:11.5px;color:#6a6a6a}'
+    '.ach-tree-hint{margin:8px 2px 0;font-size:11.5px;color:#6a6a6a}',
+    // --- Master Road ---
+    '.ach-road{position:relative;margin-top:12px;border:1px solid #262626;border-radius:16px;background:radial-gradient(120% 80% at 50% 0,#1a1630 0,#0b0d12 60%);min-height:520px}',
+    '.ach-road svg{display:block;width:100%;height:auto}',
+    '.ach-rnode{cursor:pointer}.ach-rnode .ring{transition:stroke .15s}.ach-rnode:hover .ring{stroke:#fff}',
+    '.ach-rtip{position:absolute;pointer-events:none;background:#0b0f14f2;border:2px solid #6a4cc9;border-radius:10px;padding:14px 16px;width:min(360px,calc(100% - 16px));box-shadow:0 12px 40px #000c;z-index:5;font-size:12.5px}',
+    '.ach-rtip .k{font-size:10.5px;letter-spacing:1px;font-weight:700;text-transform:uppercase}',
+    '.ach-rtip h3{margin:2px 0 8px;font-size:17px;color:#fff}.ach-rtip .s{font-size:10.5px;font-weight:700;letter-spacing:.8px}',
+    '.ach-rtip h4{margin:11px 0 3px;font-size:10.5px;letter-spacing:1px;text-transform:uppercase;color:#9aa4b2}',
+    '.ach-rtip p{margin:0;color:#c9d1d9}.ach-rtip ul,.ach-rtip ol{margin:2px 0 0;padding-left:18px;color:#c9d1d9}.ach-rtip li{margin:2px 0}',
+    '.ach-rtip .f{margin-top:12px;padding-top:9px;border-top:1px dashed #3a3f55;color:#8b949e;font-size:11.5px}',
+    '.ach-gate{padding:44px 24px;text-align:center}.ach-gate .lk{font-size:54px}.ach-gate h2{margin:6px 0;font-size:22px;color:#fff}',
+    '.ach-gate p{color:#8b949e;max-width:520px;margin:6px auto}.ach-gate .bar{height:10px;border-radius:5px;background:#1d2230;max-width:420px;margin:16px auto 6px;overflow:hidden}',
+    '.ach-gate .bar i{display:block;height:100%;background:linear-gradient(90deg,#6a4cc9,#ffd34e)}.ach-gate .n{font-size:13px;color:#e6edf3}'
 
   ].join('');
 
@@ -231,6 +244,51 @@
       '<div class="r" style="color:' + tr.c + '">' + tr.name.toUpperCase() + ' · Level ' + a.level + ' / ' + a.tiers.length + '</div>';
   }
 
+  // ---------- Master Road ----------
+  var RROAD = { Rare: '#58a6ff', Epic: '#a371f7', Legendary: '#ffb800' };
+  function roadTiers(j) { return j.achievements.reduce(function (n, a) { return n + (a.level || 0); }, 0); }
+  function roadDone(road, state) {
+    var ids = {}; ((state && state.completed) || []).forEach(function (c) { ids[c.id] = c; });
+    var cur = 0; while (cur < road.stations.length && ids[road.stations[cur].id]) cur++;
+    return { cur: cur, ids: ids };
+  }
+  function rpt(i) { return [410 + Math.sin(i * 0.95) * 230, 110 + i * 118]; }
+  function rpath(a, b) { var p = rpt(a), q = rpt(b), my = (p[1] + q[1]) / 2; return 'M' + p[0] + ' ' + p[1] + 'C' + p[0] + ' ' + my + ' ' + q[0] + ' ' + my + ' ' + q[0] + ' ' + q[1]; }
+  function roadHtml(j, road, state) {
+    var N = road.stations.length, gate = road.gate || 100, have = roadTiers(j);
+    if (have < gate) {
+      return '<div class="ach-road"><div class="ach-gate"><div class="lk">🔒</div><h2>' + esc(road.title || 'Master Road') + '</h2><p>One single, long road with ' + N + ' challenges at professional level. Only the next station is visible. Complete it and the following one is revealed.</p>' +
+        '<div class="bar"><i style="width:' + Math.round(have / gate * 100) + '%"></i></div><div class="n"><b>' + have + '</b> / ' + gate + ' levels · <b>' + (gate - have) + '</b> to go until it unlocks</div>' +
+        '<p style="font-size:12px">All reached achievement levels of your profile are counted.</p></div></div>';
+    }
+    var d = roadDone(road, state), cur = d.cur, last = Math.min(cur, N - 1) + 2, H = rpt(last)[1] + 60, g = '', n = '', i;
+    for (i = 1; i < last; i++) {
+      var on = i <= cur;
+      g += '<path d="' + rpath(i - 1, i) + '" fill="none" stroke="' + (on ? '#ffd34e' : '#3a3f55') + '" stroke-width="' + (on ? 6 : 4) + '" stroke-linecap="round"' + (on ? '' : ' stroke-dasharray="2 10" opacity="' + (i === cur + 1 ? 0.45 : 0.2) + '"') + '/>';
+    }
+    for (i = 0; i <= Math.min(cur, N - 1); i++) {
+      var p = rpt(i), x = p[0], y = p[1], s = road.stations[i], c = RROAD[s.rarity] || '#58a6ff', lbl = ' stroke="#0b0d12" stroke-width="4" paint-order="stroke"';
+      if (i < cur) n += '<g class="ach-rnode" data-i="' + i + '"><circle class="ring" cx="' + x + '" cy="' + y + '" r="26" fill="#2a2008" stroke="#ffd34e" stroke-width="3"/><path d="M' + (x - 9) + ' ' + y + 'l6 7 12-14" fill="none" stroke="#ffd34e" stroke-width="4"/><text x="' + x + '" y="' + (y + 48) + '" font-size="12" text-anchor="middle" fill="#c9b36a"' + lbl + '>' + esc(s.name) + '</text></g>';
+      else n += '<g class="ach-rnode" data-i="' + i + '"><circle cx="' + x + '" cy="' + y + '" r="46" fill="' + c + '" opacity=".12"><animate attributeName="r" values="40;52;40" dur="2.6s" repeatCount="indefinite"/><animate attributeName="opacity" values=".22;.04;.22" dur="2.6s" repeatCount="indefinite"/></circle><circle class="ring" cx="' + x + '" cy="' + y + '" r="32" fill="#161b2b" stroke="' + c + '" stroke-width="4"/><text x="' + x + '" y="' + (y + 7) + '" font-size="20" font-weight="700" text-anchor="middle" fill="' + c + '">' + (i + 1) + '</text><text x="' + x + '" y="' + (y + 60) + '" font-size="14" font-weight="700" text-anchor="middle" fill="#fff"' + lbl + '>' + esc(s.name) + '</text><text x="' + x + '" y="' + (y + 78) + '" font-size="10.5" letter-spacing="1" text-anchor="middle" fill="' + c + '"' + lbl + '>' + esc(s.rarity.toUpperCase()) + ' · NEXT STATION</text></g>';
+    }
+    if (cur < N) { var f = rpt(cur + 1); n += '<text x="' + f[0] + '" y="' + (f[1] + 9) + '" font-size="30" text-anchor="middle" fill="#3a3f55" font-weight="700" opacity=".5">?</text>'; }
+    else { var e = rpt(N - 1); n += '<text x="' + e[0] + '" y="' + (e[1] + 110) + '" font-size="18" font-weight="700" text-anchor="middle" fill="#ffd34e">★ Master of the Road ★</text>'; H += 60; }
+    var fog = cur < N ? '<rect x="0" y="' + (rpt(cur + 1)[1] - 30) + '" width="820" height="' + (H - rpt(cur + 1)[1] + 30) + '" fill="url(#ach-fog)"/>' : '';
+    return '<div class="ach-road"><svg viewBox="0 0 820 ' + H + '" font-family="-apple-system,Segoe UI,Roboto,Arial,sans-serif"><defs><linearGradient id="ach-fog" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0b0d12" stop-opacity="0"/><stop offset="1" stop-color="#0b0d12"/></linearGradient></defs>' + g + n + fog + '</svg></div>' +
+      '<div class="ach-tree-hint">' + (cur >= N ? 'All ' + N + ' stations completed.' : 'Station ' + (cur + 1) + ' of ' + N + ' · ' + cur + ' completed. Hover a station (or tap it) for the full explanation.') + '</div>';
+  }
+  function roadTipHtml(i, road, state) {
+    var d = roadDone(road, state), s = road.stations[i], c = RROAD[s.rarity] || '#58a6ff', N = road.stations.length;
+    if (i < d.cur) {
+      var pr = d.ids[s.id] || {};
+      return '<div class="k" style="color:#ffd34e">Station ' + (i + 1) + ' · completed ✓</div><h3>' + esc(s.name) + '</h3><p>' + esc(s.goal) + '</p><div class="f">Proof: ' + (pr.proof && /^https?:\/\//.test(pr.proof) ? esc(pr.proof) : esc(s.proof)) + (pr.date ? ' · ' + esc(pr.date) : '') + '</div>';
+    }
+    return '<div class="k" style="color:' + c + '">Station ' + (i + 1) + ' of ' + N + ' · next station</div><h3>' + esc(s.name) + '</h3><div class="s" style="color:' + c + '">' + esc(s.rarity.toUpperCase()) + ' · Effort ' + esc(s.effort) + '</div>' +
+      '<h4>Goal</h4><p>' + esc(s.goal) + '</p><h4>Why it matters</h4><p>' + esc(s.why) + '</p><h4>How it is checked</h4><ul>' + s.checks.map(function (q) { return '<li>' + esc(q) + '</li>'; }).join('') + '</ul>' +
+      '<h4>Proof</h4><p>' + esc(s.proof) + '</p><h4>Your path</h4><ol>' + s.steps.map(function (q) { return '<li>' + esc(q) + '</li>'; }).join('') + '</ol>' +
+      '<div class="f">Next: <b>???</b> Complete this station and the next one is revealed.</div>';
+  }
+
   function mount(root, j, opt) {
     opt = opt || {};
     if (!document.getElementById('ach-css')) { var st = document.createElement('style'); st.id = 'ach-css'; st.textContent = CSS; document.head.appendChild(st); }
@@ -240,11 +298,13 @@
     var highlights = (j.highlights || []).map(function (id) { return byId[id]; }).filter(Boolean);
     var closest = list.filter(function (a) { return !a.maxed; }).sort(function (a, b) { return b.progress - a.progress || b.level - a.level; }).slice(0, highlights.length || 6);
     var view = opt.view || 'highlights', expandAll = false;
-    var names = { highlights: 'Highlights', closest: 'Closest to next level', all: 'All', tree: 'Tree' };
+    var names = { highlights: 'Highlights', closest: 'Closest to next level', all: 'All', tree: 'Tree', road: 'Master Road' };
 
     function draw() {
       var body;
-      if (view === 'tree') {
+      if (view === 'road' && opt.road) {
+        body = roadHtml(j, opt.road, opt.roadState);
+      } else if (view === 'tree') {
         body = '<div class="ach-tree">' + treeSvg(j, byId) + '</div><div class="ach-tree-hint">Drag or scroll, tap or hover a node for details. The golden frame in the middle shows your progress towards Grandmaster.</div>';
       } else if (view === 'all') {
         body = Object.keys(j.groups || {}).map(function (g) {
@@ -255,8 +315,8 @@
       root.innerHTML = '<div class="ach-head"><div class="ach-title"><span class="ach-dot"><i></i></span>Achievements · ' + esc(names[view]) +
         '<span class="ach-by"><a href="https://github.com/nkunze2306/github-achievements-by-niounze">GitHub Achievements by niounze</a></span></div>' +
         '<div class="ach-right"><span class="ach-count"><b>' + j.unlocked + '</b> / ' + j.total + ' unlocked</span><span class="ach-tabs">' +
-        ['highlights', 'closest', 'all', 'tree'].map(function (v) { return '<button data-v="' + v + '" class="' + (v === view ? 'on' : '') + '">' + (v === 'closest' ? 'Next level' : names[v]) + '</button>'; }).join('') +
-        '</span>' + (view === 'tree' ? '' : '<button class="ach-exp">' + (expandAll ? 'Collapse all' : 'Expand all') + '</button>') + '</div></div>' + body;
+        ['highlights', 'closest', 'all', 'tree'].concat(opt.road ? ['road'] : []).map(function (v) { return '<button data-v="' + v + '" class="' + (v === view ? 'on' : '') + '">' + (v === 'closest' ? 'Next level' : names[v]) + '</button>'; }).join('') +
+        '</span>' + (view === 'tree' || view === 'road' ? '' : '<button class="ach-exp">' + (expandAll ? 'Collapse all' : 'Expand all') + '</button>') + '</div></div>' + body;
       if (view === 'tree') { var tw = root.querySelector('.ach-tree'); if (tw) tw.scrollLeft = (tw.scrollWidth - tw.clientWidth) / 2; }
       if (expandAll) root.querySelectorAll('.ach-card').forEach(function (c) { c.classList.add('open'); });
     }
@@ -271,7 +331,21 @@
     }
     root.addEventListener('mouseover', function (e) { var n = e.target.closest && e.target.closest('.ach-node'); if (n) showTip(n); });
     root.addEventListener('mouseout', function (e) { if (e.target.closest && e.target.closest('.ach-node')) { var t = root.querySelector('.ach-tip'); if (t) t.remove(); } });
+    function showRoadTip(n) {
+      var box = root.querySelector('.ach-road'); if (!box || !opt.road) return;
+      var old = box.querySelector('.ach-rtip'); if (old) old.remove();
+      var i = +n.getAttribute('data-i'), t = document.createElement('div'); t.className = 'ach-rtip';
+      var done = i < roadDone(opt.road, opt.roadState).cur; t.style.borderColor = done ? '#8a7020' : (RROAD[opt.road.stations[i].rarity] || '#6a4cc9');
+      t.innerHTML = roadTipHtml(i, opt.road, opt.roadState); box.appendChild(t);
+      var r = box.getBoundingClientRect(), b = n.querySelector('.ring').getBoundingClientRect(), W = t.offsetWidth, H = t.offsetHeight;
+      var left = b.right - r.left + 20, top = b.top - r.top - 60;
+      if (left + W > r.width) { left = b.left - r.left - W - 20; if (left < 8) { left = Math.min(Math.max(8, b.left - r.left + b.width / 2 - W / 2), r.width - W - 8); top = b.bottom - r.top + 64; } }
+      t.style.left = left + 'px'; t.style.top = Math.max(8, top) + 'px'; box.style.minHeight = Math.max(520, top + H + 24) + 'px';
+    }
+    root.addEventListener('mouseover', function (e) { var n = e.target.closest && e.target.closest('.ach-rnode'); if (n) showRoadTip(n); });
+    root.addEventListener('mouseout', function (e) { if (e.target.closest && e.target.closest('.ach-rnode')) { var t = root.querySelector('.ach-rtip'); if (t) t.remove(); } });
     root.addEventListener('click', function (e) {
+      var rn = e.target.closest && e.target.closest('.ach-rnode'); if (rn) { showRoadTip(rn); return; }
       var nd = e.target.closest && e.target.closest('.ach-node'); if (nd) { showTip(nd); return; }
       var t = e.target.closest && e.target.closest('.ach-tabs button');
       if (t) { view = t.getAttribute('data-v'); draw(); return; }
