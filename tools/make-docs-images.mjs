@@ -26,7 +26,7 @@ const run = (dir, env = {}) => {
 };
 const base = join(WORK, 'site');
 run(base);
-for (const theme of ['night', 'sakura', 'snow']) {
+for (const theme of ['autumn', 'butterflies', 'rain', 'snow', 'sakura', 'night']) {
   const dir = join(WORK, theme);
   mkdirSync(dir, { recursive: true });
   writeFileSync(join(dir, 'theme.json'), JSON.stringify({ overlays: [theme] }));
@@ -51,7 +51,7 @@ Promise.all(['achievements.json','road.json'].map((f) => fetch(f).then((r) => r.
 </script>`);
 
 // 3. serve the folder and take the screenshots
-const TYPES = { '.html': 'text/html', '.js': 'text/javascript', '.json': 'application/json', '.svg': 'image/svg+xml', '.woff2': 'font/woff2' };
+const TYPES = { '.html': 'text/html', '.js': 'text/javascript', '.mjs': 'text/javascript', '.json': 'application/json', '.svg': 'image/svg+xml', '.woff2': 'font/woff2' };
 const server = createServer((req, res) => {
   const f = join(base, decodeURIComponent(new URL(req.url, 'http://x').pathname.replace(/^\//, '') || 'index.html'));
   if (!existsSync(f)) { res.writeHead(404); res.end(); return; }
@@ -66,9 +66,22 @@ const shot = (page, out, w, h) => new Promise((done) => {
   const stop = setTimeout(() => child.kill('SIGKILL'), 60000);
   child.on('exit', () => { clearTimeout(stop); console.log(existsSync(join(IMG, out)) ? `docs/img/${out}` : `FAILED ${out}`); done(); });
 });
-await shot('shot.html#highlights', 'achievements-highlights.png', 1220, 460);
-await shot('shot.html#all', 'achievements-all.png', 1220, 1500);
-await shot('shot.html#tree', 'achievements-tree.png', 1220, 820);
-await shot('shot.html#road', 'master-road.png', 1220, 1350);
-await shot('index.html', 'dashboard.png', 1280, 2150);
+// the "Theme & look" bar is owner-only: the wrapper page marks this browser as owner, loads the dashboard in a frame and opens the bar
+writeFileSync(join(base, 'settings.html'), `<!doctype html><meta charset="utf-8"><body style="margin:0;background:#0b0b0b">
+<iframe id="f" style="border:0;width:1280px;height:600px"></iframe>
+<script>
+try { localStorage.setItem('tlOwner', '1'); } catch {}
+const f = document.getElementById('f');
+f.onload = () => setTimeout(() => { const b = f.contentDocument.getElementById('tlOpen'); if (b) b.click(); }, 1500);
+f.src = 'index.html';
+</script>`);
+const only = process.env.ONLY; // ONLY=settings renders just the settings picture
+if (!only || only === 'settings') await shot('settings.html', 'dashboard-settings.png', 1280, 600);
+if (!only) {
+  await shot('shot.html#highlights', 'achievements-highlights.png', 1220, 460);
+  await shot('shot.html#all', 'achievements-all.png', 1220, 1500);
+  await shot('shot.html#tree', 'achievements-tree.png', 1220, 820);
+  await shot('shot.html#road', 'master-road.png', 1220, 1350);
+  await shot('index.html', 'dashboard.png', 1280, 2150);
+}
 server.close();

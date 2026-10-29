@@ -115,6 +115,8 @@ Set under `options.sakura` in `theme.json`.
 
 Rain in two depth layers, splashes, puddles, mist, optional lightning.
 
+<img src="img/stats-rain.svg" alt="Rain theme" width="48%">
+
 Set under `options.rain` in `theme.json`.
 
 | Setting | What it does | Values | Default |

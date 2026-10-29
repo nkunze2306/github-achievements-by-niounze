@@ -6,7 +6,7 @@ import { THEMES } from '../stats/themes/index.mjs';
 import { rangeOf } from '../stats/theme.mjs';
 
 const OUT = fileURLToPath(new URL('../docs/THEMES.md', import.meta.url));
-const IMG = { night: 'stats-night.svg', sakura: 'stats-sakura.svg', snow: 'stats-snow.svg' };
+const IMG = { rain: 'stats-rain.svg', night: 'stats-night.svg', sakura: 'stats-sakura.svg', snow: 'stats-snow.svg' };
 
 const kind = (c) => (c.type === 'range' ? 'number' : c.type === 'toggle' ? 'true / false' : 'colour (#rrggbb)');
 const range = (c) => {

@@ -116,10 +116,29 @@ Animated, pure SVG overlays (no script, no web fonts), so they also run inside a
 | `wind` | Autumn: gusts | true / false | `true` |
 | `reduceMotion` | Stop all movement for visitors who prefer reduced motion | true / false | `true` |
 
-<details>
-<summary><b>Snow</b> (<code>options.snow</code>)</summary>
+#### Autumn (default)
+
+<p align="center"><img src="docs/img/stats-autumn.svg" alt="Autumn (default) theme" width="85%"></p>
+
+Falling leaves, some of which stay lying on card edges. Uses the general settings `density`, `piles` and `wind`.
+
+No own settings, it is controlled by the general settings above.
+
+#### Butterflies
+
+<p align="center"><img src="docs/img/stats-butterflies.svg" alt="Butterflies theme" width="85%"></p>
+
+Pixel butterflies fly around, land on card edges and slowly open and close their wings. `density` sets how many.
+
+No own settings, it is controlled by the general settings above.
+
+#### Snow
+
+<p align="center"><img src="docs/img/stats-snow.svg" alt="Snow theme" width="85%"></p>
 
 Parallax snowfall, snow piles on card edges, icicles.
+
+Settings under `options.snow`:
 
 | Setting | What it does | Values | Default |
 | --- | --- | --- | --- |
@@ -130,12 +149,13 @@ Parallax snowfall, snow piles on card edges, icicles.
 | `sparkle` | Sparkle | true / false: on or off | `true` |
 | `tint` | Snow tint | colour (#rrggbb): any hex colour, presets: `#dff1ff` `#ffffff` `#cfe0ff` `#e6dcff` `#ffe2ec` | `#dff1ff` |
 
-</details>
+#### Sakura
 
-<details>
-<summary><b>Sakura</b> (<code>options.sakura</code>)</summary>
+<p align="center"><img src="docs/img/stats-sakura.svg" alt="Sakura theme" width="85%"></p>
 
 Cherry blossom branches above the cards, drifting petals that settle on the cards.
+
+Settings under `options.sakura`:
 
 | Setting | What it does | Values | Default |
 | --- | --- | --- | --- |
@@ -146,12 +166,13 @@ Cherry blossom branches above the cards, drifting petals that settle on the card
 | `landing` | Petals landing per card | number: 0 to 8 | `4` |
 | `sway` | Branch sway | true / false: on or off | `true` |
 
-</details>
+#### Rain
 
-<details>
-<summary><b>Rain</b> (<code>options.rain</code>)</summary>
+<p align="center"><img src="docs/img/stats-rain.svg" alt="Rain theme" width="85%"></p>
 
 Rain in two depth layers, splashes, puddles, mist, optional lightning.
+
+Settings under `options.rain`:
 
 | Setting | What it does | Values | Default |
 | --- | --- | --- | --- |
@@ -164,27 +185,39 @@ Rain in two depth layers, splashes, puddles, mist, optional lightning.
 | `lightning` | Lightning | true / false: on or off | `false` |
 | `tint` | Rain colour | colour (#rrggbb): any hex colour, presets: `#9fc8ff` `#c8d6e6` `#8fe0d8` `#b8b0ff` | `#9fc8ff` |
 
-</details>
+#### Night
 
-<details>
-<summary><b>Night</b> (<code>options.night</code>)</summary>
+<p align="center"><img src="docs/img/stats-night.svg" alt="Night theme" width="85%"></p>
 
 Dark sky, stars and fireflies.
+
+Settings under `options.night`:
 
 | Setting | What it does | Values | Default |
 | --- | --- | --- | --- |
 | `dark` | Darkness | number: 0 to 60, step 2 (%) | `28` |
 | `fireflies` | Fireflies | number: 0 to 60, step 2 | `28` |
 | `stars` | Stars | number: 0 to 60, step 2 | `24` |
-
-</details>
 <!-- THEMES:END -->
 
-<p align="center">
-  <img src="docs/img/stats-night.svg" alt="Night theme" width="32%">
-  <img src="docs/img/stats-sakura.svg" alt="Sakura theme" width="32%">
-  <img src="docs/img/stats-snow.svg" alt="Snow theme" width="32%">
-</p>
+### Dashboard settings ("Theme & look")
+
+The dashboard has a settings bar for everything above, so you never have to edit `theme.json` by hand. It is only shown to you as the owner: open the dashboard once with `#settings` at the end of the URL (or sign in, see [`docs/SETUP-LOGIN.md`](docs/SETUP-LOGIN.md)). Everyone else sees the normal page.
+
+<p align="center"><img src="docs/img/dashboard-settings.png" alt="The Theme and look bar of the dashboard, opened" width="90%"></p>
+
+| Control | What it changes | Setting in `theme.json` |
+| --- | --- | --- |
+| **Overlay theme** | Which animations run on the stats card. Click several to combine them, "None" switches them all off. | `overlays` |
+| **Ring design** | Style of the progress rings: Classic, Orbit, Rank, Rarity. | `ring` |
+| **Density** | How much happens in Autumn and Butterflies (Sparse to Storm). | `density` |
+| **Leaves settle on the cards** | Autumn: leaves stay lying on card edges. | `piles` |
+| **Wind gusts blow them away** | Autumn: gusts sweep the leaves off. | `wind` |
+| **Pause when "reduce motion" is on** | Respects the visitor's system setting. | `reduceMotion` |
+| **Extra sliders of a theme** | Appear inside the opened bar as soon as Snow, Sakura, Rain or Night is selected (flakes, petals, drops, stars and so on). | `options.<id>` |
+| **Live preview** | A small animated preview of what you picked. | none |
+| **Save & rebuild** | Opens a pre-filled GitHub issue. The `apply-theme` workflow applies it only if it comes from you, writes `theme.json` and rebuilds the card. | none |
+| **Copy JSON** | Copies the finished `theme.json` so you can paste it yourself. | none |
 
 ## Quick start (5 minutes)
 
