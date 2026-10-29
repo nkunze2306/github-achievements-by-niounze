@@ -74,7 +74,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: nkunze2306/github-achievements-by-niounze@v8
+      - uses: nkunze2306/github-achievements-by-niounze@v9
         with:
           token: ${{ secrets.STATS_TOKEN }}
           components: stats,achievements
@@ -155,7 +155,7 @@ Needs Node 20 or newer.
 - The action only reads your data and writes files into **your own repo**. It sends nothing to third parties.
 - Private repos are counted but never named, they appear as "private repo 1, 2, ...".
 - AI-assisted code is detected from commit trailers (`Co-authored-by: Claude / Copilot / ...`). No code is read or judged.
-- Pin a version (`@v8`) so the code that runs with your token cannot change under you.
+- Pin a version (`@v9`) so the code that runs with your token cannot change under you.
 
 ## Repo layout
 
