@@ -559,7 +559,7 @@ async function themeConfig() {
   // Registry der Zusatz-Themes (Regler stehen in themes/index.mjs) und die gemeinsamen Regeln aus theme.mjs
   let THEMES, normalizeTheme;
   try { ({ THEMES } = await import('./themes/index.mjs')); ({ normalizeTheme } = await import('./theme.mjs')); } catch { return; }
-  const ACC = { roses: '#7db8ff', snow: '#dff1ff', sakura: '#ff9ac8', rain: '#9fc8ff', night: '#b794ff' };
+  const ACC = { snow: '#dff1ff', sakura: '#ff9ac8', rain: '#9fc8ff', night: '#b794ff' };
   const OV = [['butterflies', 'Butterflies', '#ff5c9a'], ['autumn', 'Autumn', '#ff9f5a'], ...THEMES.map((t) => [t.id, t.label, ACC[t.id] || '#ff9f5a'])];
   const RINGS = [['classic', 'Classic'], ['orbit', 'Orbit'], ['rank', 'Rank'], ['rarity', 'Rarity']];
   const DENS = ['Sparse', 'Light', 'Normal', 'Dense', 'Storm'];
@@ -567,7 +567,7 @@ async function themeConfig() {
   let cfg = norm(), saved = null, poll = null;
   const json = () => JSON.stringify(normalizeTheme(cfg), null, 2) + '\n';
   const has = (o) => cfg.overlays.includes(o);
-  const ORDER = ['rain', 'night', 'snow', 'sakura', 'roses']; // wie in generate.mjs: Stimmung zuerst, Dekor darüber
+  const ORDER = ['rain', 'night', 'snow', 'sakura']; // wie in generate.mjs: Stimmung zuerst, Dekor darüber
   const extras = () => THEMES.filter((t) => has(t.id)).sort((a, b) => ORDER.indexOf(a.id) - ORDER.indexOf(b.id));
   // Optionen eines Zusatz-Themes (fehlende Werte aus den Standardwerten); bleiben im Speicher, auch wenn das Overlay zwischendurch aus ist
   // dasselbe Objekt bei jedem Aufruf zurückgeben, sonst gehen Schreibzugriffe wie opts(t)[k] = !opts(t)[k] verloren
@@ -601,7 +601,6 @@ async function themeConfig() {
     sakura: '<svg width="30" height="30" viewBox="0 0 30 30"><g fill="#ff9ac8" stroke="#c4568f" stroke-width="1">' + [0, 72, 144, 216, 288].map((a) => `<ellipse cx="15" cy="8.5" rx="4.6" ry="6.4" transform="rotate(${a} 15 15)"/>`).join('') + '</g><circle cx="15" cy="15" r="2.6" fill="#ffe27a"/></svg>',
     rain: '<svg width="30" height="30" viewBox="0 0 30 30" fill="none" stroke="#9fc8ff" stroke-width="2.4" stroke-linecap="round"><path d="M9 6l-3 9M17 4l-3 10M24 8l-3 9M13 19l-3 8M22 21l-3 7"/></svg>',
     night: '<svg width="30" height="30" viewBox="0 0 30 30"><path d="M21 4.5A11 11 0 1 0 25.5 21 9 9 0 0 1 21 4.5z" fill="#b794ff"/><circle cx="23" cy="9" r="1.3" fill="#fff"/><circle cx="27" cy="15" r="1" fill="#fff"/></svg>',
-    roses: '<svg width="30" height="30" viewBox="0 0 30 30" fill="none" stroke="#7db8ff" stroke-width="2"><circle cx="15" cy="15" r="11"/><circle cx="15" cy="15" r="6.5"/><circle cx="15" cy="15" r="2.2" fill="#7db8ff"/></svg>',
   };
 
   const sec = document.createElement('section');

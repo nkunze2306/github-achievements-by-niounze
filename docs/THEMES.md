@@ -16,15 +16,16 @@ An overlay is an animation layer that `stats/generate.mjs` inserts before `</svg
 | ----------- | -------- |
 | butterflies | `density` |
 | autumn      | `density`, `piles`, `wind` (file `stats/autumn.mjs`) |
-| roses       | `options.roses`: `color`, `silver` (0-1), `density` (factor) |
 | snow        | `options.snow`: `flakes`, `piles`, `wind`, `icicles`, `sparkle`, `tint` |
 | sakura      | `options.sakura`: `color`, `branches`, `blossoms`, `petals`, `landing`, `sway` |
 | rain        | `options.rain`: `drops`, `angle`, `dim`, `puddles`, `splashes`, `mist`, `lightning`, `tint` |
-| night       | `options.night`: `dark`, `fireflies`, `stars`, `roses`, `glow`, `color` |
+| night       | `options.night`: `dark`, `fireflies`, `stars` |
 
 `stats/theme.mjs` validates everything (`normalizeTheme`): unknown overlays, values outside the slider ranges and invalid colours fall back to the default.
 With `reduceMotion` a media query hides all movement. Autumn leaves the leaves lying, the themes from `stats/themes/` disappear completely.
 Internally every theme also has `loop` (seconds per cycle) and `seed` (same seed = same picture); both are not adjustable.
+
+With `sakura` branches switched on, the image gets a transparent strip on top where the branches hang. They never cover the card content.
 
 `theme.json` lives next to your generated files (the `output-dir` of the action). Without it the stats card has no overlay.
 

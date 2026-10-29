@@ -6,6 +6,7 @@ import { writeFileSync, readFileSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
 import { autumnLayer } from './autumn.mjs';
 import { THEMES } from './themes/index.mjs';
+import { SAKURA_DEFAULTS } from './themes/sakura.mjs';
 import { normalizeTheme } from './theme.mjs';
 import { collectGitLabCommits } from '../gitlab.mjs';
 
@@ -488,10 +489,16 @@ function readTheme() {
 const THEME = readTheme();
 
 // Overlay über dem ganzen Bild; mit reduceMotion blendet eine Media-Query alles Bewegte aus (Laubhaufen bleiben liegen, die übrigen Themes verschwinden ganz)
+// The sakura branches hang above the content, never over it: the image gets a transparent strip on top and everything else moves down.
+const SAKURA_HEADROOM = 92;
+function headroom() {
+  return THEME.overlays.includes('sakura') && (THEME.options?.sakura?.branches ?? SAKURA_DEFAULTS.branches) > 0 ? SAKURA_HEADROOM : 0;
+}
+
 function themeSvg(W, H) {
   const t = THEME, d = t.density - 1;
   // Stimmungs-Themes (Regen, Nacht) zuerst, damit ihre Abdunklung unter dem übrigen Dekor liegt
-  const order = ['rain', 'night', 'snow', 'sakura', 'roses'];
+  const order = ['rain', 'night', 'snow', 'sakura'];
   const extra = THEMES.filter((th) => t.overlays.includes(th.id)).sort((a, b) => order.indexOf(a.id) - order.indexOf(b.id));
   let layer = extra.map((th) => `<g class="mo">${th.render(W, H, CARD_TOPS, { ...th.defaults, ...t.options?.[th.id] })}</g>`).join('');
   if (t.overlays.includes('autumn')) layer += autumnLayer(W, H, CARD_TOPS, { fliers: [3, 6, 10, 15, 20][d], piles: t.piles ? 2 : 0, pileLeaves: [4, 6, 8, 11, 14][d], wind: t.wind });
@@ -1055,10 +1062,10 @@ function render(d) {
   parts.push(text(W - M, y + 4, `Updated ${dateStr} · generated automatically by GitHub Actions`, { size: 10.5, fill: C.dim, anchor: 'end' }));
   const H = y + 14;
 
-  return `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" font-family="'Space Grotesk', 'Segoe UI', -apple-system, 'Helvetica Neue', Arial, sans-serif">
+  const HEAD = headroom(), body = `${parts.join('\n')}\n${themeSvg(W, H)}`;
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H + HEAD}" viewBox="0 0 ${W} ${H + HEAD}" font-family="'Space Grotesk', 'Segoe UI', -apple-system, 'Helvetica Neue', Arial, sans-serif">
 ${fontStyle()}
-${parts.join('\n')}
-${themeSvg(W, H)}
+${HEAD ? `<g transform="translate(0 ${HEAD})">${body}</g>` : body}
 </svg>
 `;
 }

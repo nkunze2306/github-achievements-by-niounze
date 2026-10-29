@@ -49,10 +49,10 @@ export function sakuraLayer(W, H, cards, o = {}) {
   sizes.forEach((N, i) => { defs.push(blossomSprite(`sb${i}`, N, o.color, 0.3 + i), blossomSprite(`sl${i}`, N, light, 1.1 + i)); });
   defs.push(budSprite('sbud', o.color), petalSprite('sp0', o.color), petalSprite('sp1', light));
 
-  // --- Zweige (links oben, rechts oben); Blüten sitzen entlang der Äste und Zweiglein
+  // --- Zweige (links oben, rechts oben) in der Kopfzeile ÜBER dem Inhalt (negatives y, siehe headroom() in generate.mjs); Blüten sitzen entlang der Äste und Zweiglein
   const defsB = [
-    { pts: [[-12, 70], [40, 66], [95, 71], [150, 64], [200, 68]], twigs: [[1, 16, -50], [2, 18, 40], [3, 18, -45], [4, 16, 40]], w: 7, origin: [-12, 70] },
-    { pts: [[W + 12, 68], [W - 40, 72], [W - 95, 66], [W - 150, 70]], twigs: [[1, 16, 40], [2, 18, -50], [3, 16, 40]], w: 7, origin: [W + 12, 68] },
+    { pts: [[-12, -42], [40, -46], [95, -41], [150, -48], [200, -44]], twigs: [[1, 16, -50], [2, 18, 40], [3, 18, -45], [4, 16, 40]], w: 7, origin: [-12, -42] },
+    { pts: [[W + 12, -44], [W - 40, -40], [W - 95, -46], [W - 150, -42]], twigs: [[1, 16, 40], [2, 18, -50], [3, 16, 40]], w: 7, origin: [W + 12, -44] },
   ].slice(0, o.branches);
   defsB.forEach((b, bi) => {
     let wood = branchPath(b.pts, b.w), blooms = '';

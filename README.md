@@ -47,7 +47,7 @@ Only the next station is visible, behind it there is fog. Hover a station for th
 
 ### Themes for the stats card
 
-Animated, pure SVG overlays (no script): `autumn`, `snow`, `sakura`, `rain`, `night`, `roses`, `butterflies`. Combine several in `theme.json`, see [`docs/THEMES.md`](docs/THEMES.md).
+Animated, pure SVG overlays (no script): `autumn`, `snow`, `sakura`, `rain`, `night`, `butterflies`. Combine several in `theme.json`, see [`docs/THEMES.md`](docs/THEMES.md).
 
 <p align="center">
   <img src="docs/img/stats-night.svg" alt="Night theme" width="32%">

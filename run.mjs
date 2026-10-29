@@ -8,7 +8,7 @@
 //   dashboard     index.html + font: the interactive website (stats, achievements, tree, Master Road, theme bar)
 //   road          seeds road.json + road-state.json (Master Road) once, never overwrites your progress
 import { spawnSync } from 'node:child_process';
-import { copyFileSync, existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { copyFileSync, existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -44,8 +44,12 @@ for (const c of wanted) {
     writeFileSync(join(OUT, 'index.html'), html);
     mkdirSync(join(OUT, 'assets'), { recursive: true });
     copyFileSync(join(HERE, 'stats/assets/space-grotesk.woff2'), join(OUT, 'assets/space-grotesk.woff2'));
+    // the theme bar of the page imports the validation and the theme registry next to index.html
+    copyFileSync(join(HERE, 'stats/theme.mjs'), join(OUT, 'theme.mjs'));
+    mkdirSync(join(OUT, 'themes'), { recursive: true });
+    for (const f of readdirSync(join(HERE, 'stats/themes'))) if (f.endsWith('.mjs')) copyFileSync(join(HERE, 'stats/themes', f), join(OUT, 'themes', f));
     for (const f of ['stats.json', 'achievements.json']) if (!existsSync(join(OUT, f))) console.warn(`dashboard: ${f} is missing, enable the matching component (${f.startsWith('stats') ? 'stats' : 'achievements'})`);
-    console.log('wrote index.html, assets/space-grotesk.woff2');
+    console.log('wrote index.html, assets/space-grotesk.woff2, theme.mjs, themes/');
   }
   if (c === 'road') {
     if (!existsSync(join(OUT, 'road.json'))) { copyFileSync(join(HERE, 'site/road.default.json'), join(OUT, 'road.json')); console.log('seeded road.json'); }

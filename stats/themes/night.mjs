@@ -1,17 +1,14 @@
 // Nacht-Theme: abgedunkeltes Bild, Sterne am Rand, Glühwürmchen (frei schwebend und auf den Kachelkanten sitzend),
-// optional leuchtende Pixel-Rosen in den Ecken mit pulsierendem Schein.
+// Alle Elemente liegen am Rand bzw. auf den Kachelkanten.
 import { mix, rng, f1, keyTimes, twinkle, wideCards } from './lib.mjs';
-import { rosePixels } from './roses.mjs';
 
-export const NIGHT_DEFAULTS = { dark: 28, fireflies: 28, stars: 24, roses: true, color: '#b794ff', glow: 60, loop: 40, seed: 17 };
+export const NIGHT_DEFAULTS = { dark: 28, fireflies: 28, stars: 24, loop: 40, seed: 17 };
 
 export function nightLayer(W, H, cards, o = {}) {
   o = { ...NIGHT_DEFAULTS, ...o };
   const R = rng(o.seed), T = o.loop, kt = (a) => keyTimes(T, a);
   const defs = [], g = [], pre = [];
-  const glowA = (o.glow / 100).toFixed(2);
-  defs.push(`<radialGradient id="nFly"><stop offset="0" stop-color="#fff3a8" stop-opacity=".95"/><stop offset=".4" stop-color="#ffe27a" stop-opacity=".35"/><stop offset="1" stop-color="#ffe27a" stop-opacity="0"/></radialGradient>`,
-    `<radialGradient id="nRose"><stop offset="0" stop-color="${o.color}" stop-opacity="${glowA}"/><stop offset="1" stop-color="${o.color}" stop-opacity="0"/></radialGradient>`);
+  defs.push(`<radialGradient id="nFly"><stop offset="0" stop-color="#fff3a8" stop-opacity=".95"/><stop offset=".4" stop-color="#ffe27a" stop-opacity=".35"/><stop offset="1" stop-color="#ffe27a" stop-opacity="0"/></radialGradient>`);
   if (o.dark > 0) pre.push(`<rect width="${W}" height="${H}" fill="#02030c" opacity="${(o.dark / 100).toFixed(2)}"/>`);
 
   // --- Sterne: nur im Kopfbereich und in den Spalten ganz am Rand, flimmern mit unterschiedlichem Takt
@@ -21,22 +18,6 @@ export function nightLayer(W, H, cards, o = {}) {
     stars += `<g transform="translate(${f1(x)} ${f1(y)})"><g><animate attributeName="opacity" dur="${per.toFixed(1)}s" begin="-${t0.toFixed(1)}s" repeatCount="indefinite" values=".15;1;.15"/>${big ? '<path fill="#fff" d="M-.5 -3h1v2h2v1h-2v2h-1v-2h-2v-1h2z"/>' : '<rect x="-.5" y="-.5" width="1.5" height="1.5" fill="#dfe9ff"/>'}</g></g>`;
   }
   g.push(stars);
-
-  // --- Leuchtende Rosen in den Ecken breiter Kacheln (BR-Ecke), je 3 Blüten
-  if (o.roses) {
-    const sizes = [34, 26];
-    sizes.forEach((N, i) => defs.push(`<g id="nr${i}"><g transform="translate(${-N / 2} ${-N / 2})">${rosePixels(o.color, 0.4 + i, N)}</g></g>`));
-    wideCards(cards).slice(0, 14).forEach((c, ci) => {
-      const ax = c.x + c.w + 2, ay = c.y + c.h + 2, spots = [[ax, ay, 0], [ax - 24, ay + 3, 1], [ax + 1, ay - 24, 1]];
-      const per = R.range(4, 7);
-      g.push(`<circle cx="${f1(ax - 8)}" cy="${f1(ay - 8)}" r="40" fill="url(#nRose)"><animate attributeName="r" dur="${per.toFixed(1)}s" begin="-${R.range(0, per).toFixed(1)}s" repeatCount="indefinite" values="34;46;34"/></circle>`);
-      spots.forEach(([x, y, s], k) => {
-        const tg = 1 + ci * 0.4 + k * 0.5;
-        g.push(`<g transform="translate(${f1(x)} ${f1(y)})"><g><animateTransform attributeName="transform" type="scale" dur="${T}s" repeatCount="indefinite" calcMode="spline" keyTimes="${kt([0, tg, tg + 1.3, T - 4, T - 1, T])}" keySplines="0 0 1 1;.2 1.5 .4 1;0 0 1 1;.6 0 1 1;0 0 1 1" values="0;0;1;1;0;0"/><use href="#nr${s}"/></g></g>`);
-      });
-      if (ci % 2 === 0) g.push(twinkle(T, ax - 10, ay - 12, R.range(3, T - 4), { size: 3, color: mix(o.color, '#ffffff', 0.8) }));
-    });
-  }
 
   // --- Glühwürmchen: schweben in Schleifen, blinken; einige sitzen auf Oberkanten und pulsieren ruhig
   let fl = '';
