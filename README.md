@@ -36,7 +36,7 @@ Hover or tap a node for the description, progress and level pips. The golden fra
 
 ### Master Road
 
-Unlocks at 100 reached achievement levels (`gate` in `road.json`). A single long road with 23 challenges at professional level, from "make a real app 5x faster" to "become maintainer of a big open-source project".
+Unlocks at 100 reached achievement levels (`gate` in `road.json`). A single long road with 23 challenges at professional level. **The tasks are hard and meant as real challenges**, not quick wins: each takes weeks or months of focused work. From "make a real app 5x faster" to "become maintainer of a big open-source project".
 Only the next station is visible, behind it there is fog. Hover a station for the goal, why it matters, how it is checked, the proof you need and a step-by-step path. See [`docs/ROAD.md`](docs/ROAD.md).
 
 <p align="center"><img src="docs/img/master-road.png" alt="Master Road with four finished stations and the next station explained in a tooltip" width="100%"></p>
@@ -47,7 +47,7 @@ Only the next station is visible, behind it there is fog. Hover a station for th
 
 ### Themes for the stats card
 
-Animated, pure SVG overlays (no script): `autumn`, `snow`, `sakura`, `rain`, `night`, `butterflies`. Combine several in `theme.json`, see [`docs/THEMES.md`](docs/THEMES.md).
+Animated, pure SVG overlays (no script): `autumn`, `snow`, `sakura`, `rain`, `night`, `butterflies`. Combine several in `theme.json`. Every theme and every setting with its range and default is listed in [`docs/THEMES.md`](docs/THEMES.md).
 
 <p align="center">
   <img src="docs/img/stats-night.svg" alt="Night theme" width="32%">

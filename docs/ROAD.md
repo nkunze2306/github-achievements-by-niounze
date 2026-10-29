@@ -2,6 +2,8 @@
 
 A separate section (tab **Master Road**) on the website: one road with 23 stations at professional level.
 
+**These tasks are hard.** They are meant to be real challenges, not quick wins. Each station takes weeks or months of focused work (the effort is shown per station), and several are the kind of result people list on a CV for years.
+
 - **Unlock:** from 100 reached achievement levels (every level counts individually, value `gate` in `road.json`). Before that you see a lock with a progress bar.
 - **Only the next station is visible.** Completed stations are gold, after that there is only a "?" in the fog.
 - **Hover/tap** a station to see: goal, why it matters, how it is checked, proof, your path, effort.

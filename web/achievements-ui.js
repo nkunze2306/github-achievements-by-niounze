@@ -261,7 +261,7 @@
   function roadHtml(j, road, state) {
     var N = road.stations.length, gate = road.gate || 100, have = roadTiers(j);
     if (have < gate) {
-      return '<div class="ach-road"><div class="ach-gate"><div class="lk">🔒</div><h2>' + esc(road.title || 'Master Road') + '</h2><p>One single, long road with ' + N + ' challenges at professional level. Only the next station is visible. Complete it and the following one is revealed.</p>' +
+      return '<div class="ach-road"><div class="ach-gate"><div class="lk">🔒</div><h2>' + esc(road.title || 'Master Road') + '</h2><p>One single, long road with ' + N + ' challenges at professional level. These tasks are hard. They are meant to be real challenges, not quick wins: each one takes weeks or months of focused work. Only the next station is visible. Complete it and the following one is revealed.</p>' +
         '<div class="bar"><i style="width:' + Math.round(have / gate * 100) + '%"></i></div><div class="n"><b>' + have + '</b> / ' + gate + ' levels · <b>' + (gate - have) + '</b> to go until it unlocks</div>' +
         '<p style="font-size:12px">All reached achievement levels of your profile are counted.</p></div></div>';
     }
@@ -279,7 +279,7 @@
     else { var e = rpt(N - 1); n += '<text x="' + e[0] + '" y="' + (e[1] + 110) + '" font-size="18" font-weight="700" text-anchor="middle" fill="#ffd34e">★ Master of the Road ★</text>'; H += 60; }
     var fog = cur < N ? '<rect x="0" y="' + (rpt(cur + 1)[1] - 30) + '" width="820" height="' + (H - rpt(cur + 1)[1] + 30) + '" fill="url(#ach-fog)"/>' : '';
     return '<div class="ach-road"><svg viewBox="0 0 820 ' + H + '" font-family="-apple-system,Segoe UI,Roboto,Arial,sans-serif"><defs><linearGradient id="ach-fog" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0b0d12" stop-opacity="0"/><stop offset="1" stop-color="#0b0d12"/></linearGradient></defs>' + g + n + fog + '</svg></div>' +
-      '<div class="ach-tree-hint">' + (cur >= N ? 'All ' + N + ' stations completed.' : 'Station ' + (cur + 1) + ' of ' + N + ' · ' + cur + ' completed. Hover a station (or tap it) for the full explanation.') + '</div>';
+      '<div class="ach-tree-hint">' + (cur >= N ? 'All ' + N + ' stations completed.' : 'Station ' + (cur + 1) + ' of ' + N + ' · ' + cur + ' completed. Hover a station (or tap it) for the full explanation. These tasks are hard and meant as real challenges.') + '</div>';
   }
   function roadTipHtml(i, road, state) {
     var d = roadDone(road, state), s = road.stations[i], c = RROAD[s.rarity] || '#58a6ff', N = road.stations.length;
