@@ -38,12 +38,13 @@ Rules: never print token or secret values. Ask before every push, repo creation 
 
 ### B) With git and Node (no Claude)
 
-Needs Node 20+, git and the [GitHub CLI](https://cli.github.com) (`gh auth login` once).
+Needs Node 20+, git and the [GitHub CLI](https://cli.github.com). If you are not logged in, the script starts the login for you.
 
 ```bash
-git clone https://github.com/nkunze2306/github-achievements-by-niounze
-node github-achievements-by-niounze/tools/setup.mjs            # add --dry-run to only see what it would do
+npx github:nkunze2306/github-achievements-by-niounze        # add --dry-run at the end to only see what it would do
 ```
+
+That is the whole install: everything else is asked and done by the script. Without npx: `git clone https://github.com/nkunze2306/github-achievements-by-niounze && node github-achievements-by-niounze/tools/setup.mjs`.
 
 The script checks the logged-in account, asks the questions above, stores your tokens as secrets (hidden input), writes `.github/workflows/stats.yml`, pushes it after you confirm and starts the first run. It then prints the README line and the dashboard URL.
 Prefer to do it by hand? See [Quick start](#quick-start-5-minutes).

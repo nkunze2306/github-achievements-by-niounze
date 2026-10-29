@@ -1,5 +1,7 @@
+#!/usr/bin/env node
 // Interactive setup for the GitHub Stats & Achievements kit. Needs Node 20+, git and the GitHub CLI (gh), logged in.
-//   git clone https://github.com/nkunze2306/github-achievements-by-niounze && node github-achievements-by-niounze/tools/setup.mjs
+//   npx github:nkunze2306/github-achievements-by-niounze        (one command, everything else is asked)
+//   or: git clone https://github.com/nkunze2306/github-achievements-by-niounze && node github-achievements-by-niounze/tools/setup.mjs
 //   add --dry-run to see what would happen without changing anything
 //
 // It: checks which GitHub account is logged in, picks the repo, asks which components you want (and whether you want the
@@ -23,6 +25,12 @@ const act = (label, cmd, args, opts = {}) => {
   if (r.status !== 0) { console.error(`Failed: ${cmd} ${args.join(' ')}`); process.exit(r.status || 1); }
   return r;
 };
+
+// log in first (before the prompt reader owns stdin), so a fresh machine needs no extra step
+if (spawnSync('gh', ['--version'], { encoding: 'utf8' }).status === 0 && spawnSync('gh', ['auth', 'status'], { encoding: 'utf8' }).status !== 0) {
+  console.log('You are not logged in to GitHub yet. Starting the login:');
+  spawnSync('gh', ['auth', 'login', '--web', '--git-protocol', 'https'], { stdio: 'inherit' });
+}
 
 const rl = createInterface({ input: process.stdin, output: process.stdout });
 rl.on('close', () => { if (!closing) { console.log('\nInput closed, stopping.'); process.exit(1); } });

@@ -1,0 +1,9 @@
+{
+  "name": "github-achievements-by-niounze",
+  "version": "1.0.0",
+  "description": "GitHub stats card, achievements, dashboard and Master Road. Run: npx github:nkunze2306/github-achievements-by-niounze",
+  "type": "module",
+  "bin": { "github-achievements-setup": "tools/setup.mjs" },
+  "engines": { "node": ">=20" },
+  "license": "MIT"
+}
