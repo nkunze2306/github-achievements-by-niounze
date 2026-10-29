@@ -3,6 +3,51 @@
 A modular, self-updating kit for your GitHub profile. One GitHub Action, four components. Switch on what you like, ignore the rest.
 Everything below is rendered from **demo data**, nothing here is a real person's profile.
 
+## Install in one step
+
+Pick one. Both ask you the same questions: which GitHub account, which components, whether you want the **dashboard website** (as a new GitHub Pages site, or added to a website you already have), and whether you use **WakaTime**.
+Your tokens are typed in by you and stored as repo secrets with `gh secret set`, nobody prints or reads them.
+
+### A) With Claude Code (paste this prompt)
+
+```text
+Set up the "GitHub Stats & Achievements" kit for my GitHub profile.
+Source: https://github.com/nkunze2306/github-achievements-by-niounze (read its README first and pin the newest release tag).
+
+1. Account: run `gh auth status` and `gh api user --jq .login`. Tell me the account name and ask if it is the right one.
+   If not, help me with `gh auth switch` or `gh auth login`. Everything below happens on exactly that account.
+2. Repo: use my profile repo <login>/<login>. If it does not exist, ask before creating it (public, with a README).
+3. Ask which components I want: stats card, achievements (both default yes) and the Master Road.
+4. Ask me clearly: "Do you want the dashboard website too?" Options:
+   (a) no,
+   (b) yes, as a new GitHub Pages site on my profile repo,
+   (c) yes, add it to my existing website (ask for that repo and a subfolder, default `stats/`).
+   Enable GitHub Pages only for (b), and only after I said yes.
+5. Ask if I use WakaTime. If yes, send me to https://wakatime.com/settings/api-key and have me store the key myself:
+   `! gh secret set WAKATIME_API_KEY -R <repo>` (I type it, you never see or print it).
+6. Token: have me create a classic personal access token with the scopes repo and read:org
+   (https://github.com/settings/tokens/new?scopes=repo,read:org&description=stats-kit) and store it the same way:
+   `! gh secret set STATS_TOKEN -R <repo>`. Without it only public data is counted.
+7. Create .github/workflows/stats.yml from the kit's examples/minimal-workflow.yml (or full-workflow.yml if I want everything) with my choices:
+   components, output-dir, my time zone (ask), the WakaTime line only if I use it, the pinned tag. Show me the file first.
+8. After I confirm: commit, push, run `gh workflow run stats.yml`, follow it with `gh run watch` and fix errors.
+   Finally give me the README snippet for stats.svg and, if I chose the dashboard, its URL.
+
+Rules: never print token or secret values. Ask before every push, repo creation and Pages activation. Change only files that belong to this setup.
+```
+
+### B) With git and Node (no Claude)
+
+Needs Node 20+, git and the [GitHub CLI](https://cli.github.com) (`gh auth login` once).
+
+```bash
+git clone https://github.com/nkunze2306/github-achievements-by-niounze
+node github-achievements-by-niounze/tools/setup.mjs            # add --dry-run to only see what it would do
+```
+
+The script checks the logged-in account, asks the questions above, stores your tokens as secrets (hidden input), writes `.github/workflows/stats.yml`, pushes it after you confirm and starts the first run. It then prints the README line and the dashboard URL.
+Prefer to do it by hand? See [Quick start](#quick-start-5-minutes).
+
 <p align="center"><img src="docs/img/stats-demo.svg" alt="Stats card with intro, lines of code, coding time, achievements, heatmap, languages" width="100%"></p>
 
 <p align="center"><img src="docs/img/overview.svg" alt="Overview: your data goes into the action, which has four components and commits files to your repo" width="100%"></p>
@@ -166,7 +211,7 @@ stats/                        stats card, themes, fonts
 site/                         dashboard page and the default Master Road
 gitlab.mjs                    optional GitLab source (own commits only)
 apply-theme/                  small action behind the dashboard "Save & rebuild"
-tools/                        local helpers (token usage tracker, login worker, docs images)
+tools/                        setup.mjs (guided install), token usage tracker, login worker, docs images
 docs/ examples/               documentation and ready-to-copy workflows
 ```
 
