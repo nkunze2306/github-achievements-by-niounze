@@ -1,0 +1,448 @@
+{
+  "title": "Master Road",
+  "gate": 100,
+  "stations": [
+    {
+      "id": "bottleneck-buster",
+      "name": "Bottleneck Buster",
+      "rarity": "Rare",
+      "goal": "Measure a real application and make it at least 5x faster.",
+      "why": "Measuring instead of guessing is how performance engineers work. It is the foundation for everything after.",
+      "checks": [
+        "Is there a profile (flamegraph, perf, Nsight, etc.) before and after the change?",
+        "Is the speedup at least 5x with identical results?",
+        "Is there a test proving identical outputs?"
+      ],
+      "proof": "PR or README with a before/after measurement and the command to reproduce it.",
+      "steps": [
+        "Pick a program you know that is noticeably slow.",
+        "Take a profile and find the hottest section.",
+        "Change, re-measure, repeat until 5x is reached.",
+        "Put the measurements into the README as a table."
+      ],
+      "effort": "1 to 2 weeks"
+    },
+    {
+      "id": "backward-thinker",
+      "name": "Backward Thinker",
+      "rarity": "Rare",
+      "goal": "Build automatic differentiation yourself and train a small network with it.",
+      "why": "Autodiff is the engine of every AI library. Whoever built one really understands training.",
+      "checks": [
+        "Is there a compute-graph structure with a backward pass?",
+        "Do the gradients match numerical differences (gradient check)?",
+        "Does a small network (for example digits) learn with it?"
+      ],
+      "proof": "Repo with a gradient-check test and a training curve.",
+      "steps": [
+        "Build scalar operations with backward rules.",
+        "Extend to tensors.",
+        "Write the gradient check as a test.",
+        "Train a network on a small dataset."
+      ],
+      "effort": "1 to 2 weeks"
+    },
+    {
+      "id": "spark-from-nothing",
+      "name": "Spark From Nothing",
+      "rarity": "Epic",
+      "goal": "Train a transformer from scratch with your own training loop.",
+      "why": "Shows that you can build modern models, not only apply them.",
+      "checks": [
+        "Are there your own attention, block and training implementations (no ready-made model)?",
+        "Does the loss fall in a traceable way?",
+        "Is there an evaluation on test data?"
+      ],
+      "proof": "Repo with configuration, curve and sample outputs.",
+      "steps": [
+        "Prepare tokenizer and data.",
+        "Build the model block by block.",
+        "Training loop with optimizer and schedule.",
+        "Document results and failures."
+      ],
+      "effort": "2 to 4 weeks"
+    },
+    {
+      "id": "master-teacher",
+      "name": "Master Teacher",
+      "rarity": "Rare",
+      "goal": "Explain a hard topic so that others understand it: an article or video with 10,000 views.",
+      "why": "Being able to explain is the rarest skill in a team. Reach proves it lands.",
+      "checks": [
+        "Is there a public piece with technical content?",
+        "Does the platform show at least 10,000 views?"
+      ],
+      "proof": "Link to the piece (the number is confirmed by you).",
+      "steps": [
+        "Pick a topic you just learned.",
+        "Start with a concrete example.",
+        "Provide code and graphics.",
+        "Publish and share."
+      ],
+      "effort": "1 to 3 weeks"
+    },
+    {
+      "id": "silicon-smith",
+      "name": "Silicon Smith",
+      "rarity": "Epic",
+      "goal": "Write your own GPU kernel that keeps up with the library version in a benchmark.",
+      "why": "Hardware-near performance is the core business of every GPU company.",
+      "checks": [
+        "Is there a kernel in CUDA, Triton or similar?",
+        "Is there a reproducible comparison with a library function?",
+        "Is your kernel at 80% or more of the reference?"
+      ],
+      "proof": "Repo with benchmark script and results table.",
+      "steps": [
+        "Implement matrix multiplication naively.",
+        "Optimize step by step (tiling, shared memory).",
+        "Measure against the library.",
+        "Document every step with a number."
+      ],
+      "effort": "3 to 6 weeks"
+    },
+    {
+      "id": "roofline-rider",
+      "name": "Roofline Rider",
+      "rarity": "Epic",
+      "goal": "Show whether a kernel is limited by compute or memory bandwidth, and rebuild it accordingly.",
+      "why": "Whoever knows the limits of the hardware optimizes deliberately instead of randomly.",
+      "checks": [
+        "Is there a roofline analysis with measurement points?",
+        "Did a change measurably move the point closer to the limit?"
+      ],
+      "proof": "Diagram and measurement data in the repo.",
+      "steps": [
+        "Determine compute and bandwidth of the card.",
+        "Plot the kernel in the diagram.",
+        "Rebuild it (fusion, tiling).",
+        "Re-measure and compare."
+      ],
+      "effort": "1 to 2 weeks"
+    },
+    {
+      "id": "light-bender",
+      "name": "Light Bender",
+      "rarity": "Epic",
+      "goal": "Build a ray tracer that renders a scene interactively.",
+      "why": "Graphics combines maths, parallelism and performance, exactly what graphics teams look for.",
+      "checks": [
+        "Are there ray-object intersection, light and shadows?",
+        "Does a scene run at 10 frames per second or more?",
+        "Is there an acceleration structure (BVH or similar)?"
+      ],
+      "proof": "Video or screenshots plus code.",
+      "steps": [
+        "Rays and spheres.",
+        "Materials and light.",
+        "Add a BVH.",
+        "Move it to the GPU or multiple cores."
+      ],
+      "effort": "3 to 5 weeks"
+    },
+    {
+      "id": "bit-alchemist",
+      "name": "Bit Alchemist",
+      "rarity": "Epic",
+      "goal": "Bring a model to INT8 or INT4 and lose less than 1% accuracy.",
+      "why": "Efficient inference saves cost and power in practice.",
+      "checks": [
+        "Is there quantization code or a documented pipeline?",
+        "Is the accuracy loss below 1%?",
+        "Is the model measurably faster or smaller?"
+      ],
+      "proof": "Table with accuracy, size and speed.",
+      "steps": [
+        "Fix the base model and the measurement.",
+        "Quantize the weights.",
+        "Calibrate and win back the lost accuracy.",
+        "Measure everything and publish."
+      ],
+      "effort": "2 to 3 weeks"
+    },
+    {
+      "id": "second-voice",
+      "name": "Second Voice",
+      "rarity": "Rare",
+      "goal": "Rebuild a published paper and document deviations honestly.",
+      "why": "Reproducing shows scientific care, not just programming.",
+      "checks": [
+        "Is there a reimplementation referencing the paper?",
+        "Are results and deviations compared in a table?"
+      ],
+      "proof": "Repo with comparison table and discussion.",
+      "steps": [
+        "Pick a paper with a clear result.",
+        "Rebuild the method step by step.",
+        "Compare results.",
+        "Explain deviations."
+      ],
+      "effort": "2 to 4 weeks"
+    },
+    {
+      "id": "shadow-translator",
+      "name": "Shadow Translator",
+      "rarity": "Epic",
+      "goal": "Build a small shader compiler that translates a high-level language into an intermediate format.",
+      "why": "Compiler knowledge is rare and central to graphics and AI drivers.",
+      "checks": [
+        "Are there a parser, intermediate representation and code generation?",
+        "Does an example shader run with it?"
+      ],
+      "proof": "Repo with examples and tests.",
+      "steps": [
+        "Design a small language.",
+        "Write the parser.",
+        "Build the intermediate representation.",
+        "Generate target code and run it."
+      ],
+      "effort": "4 to 8 weeks"
+    },
+    {
+      "id": "sandstorm",
+      "name": "Sandstorm",
+      "rarity": "Epic",
+      "goal": "A particle or fluid simulation with over 1 million elements in real time on the GPU.",
+      "why": "Massively parallel simulation is a prime example of GPU work.",
+      "checks": [
+        "Does the simulation run on the GPU?",
+        "Are there at least 1M elements at 30 frames per second or more?"
+      ],
+      "proof": "Video plus frame-rate measurement.",
+      "steps": [
+        "Simple particle system on the GPU.",
+        "Spatial partitioning for neighbourhoods.",
+        "Optimize until 1M run smoothly.",
+        "Record a video."
+      ],
+      "effort": "3 to 5 weeks"
+    },
+    {
+      "id": "marathon-runner",
+      "name": "The Marathon Runner",
+      "rarity": "Epic",
+      "goal": "Build an inference server with batching, caching and streaming that stays stable under load.",
+      "why": "Operating under load separates prototypes from products.",
+      "checks": [
+        "Is there dynamic batching and caching?",
+        "Is there a load test with throughput and latency?",
+        "Does it stay stable for 1 hour?"
+      ],
+      "proof": "Load-test script and results.",
+      "steps": [
+        "Serve the model as a service.",
+        "Batch requests.",
+        "Write a load test.",
+        "Fix the bottlenecks."
+      ],
+      "effort": "3 to 5 weeks"
+    },
+    {
+      "id": "judge-of-models",
+      "name": "Judge of Models",
+      "rarity": "Epic",
+      "goal": "Publish a reproducible benchmark that others use.",
+      "why": "Good measurement shapes what counts as good.",
+      "checks": [
+        "Are there a dataset, metrics and scripts?",
+        "Have at least 3 foreign repos or papers used it?"
+      ],
+      "proof": "Repo plus evidence of usage.",
+      "steps": [
+        "Define the question and metric.",
+        "Prepare the data cleanly.",
+        "Deliver reference results.",
+        "Publish and make it known."
+      ],
+      "effort": "4 to 8 weeks"
+    },
+    {
+      "id": "flaw-in-the-foundation",
+      "name": "Flaw in the Foundation",
+      "rarity": "Epic",
+      "goal": "Find and fix a bug in a large compiler, runtime or library.",
+      "why": "Finding bugs in foundations takes deep understanding and patience.",
+      "checks": [
+        "Is there an issue with a minimal example from you?",
+        "Is your fix merged?"
+      ],
+      "proof": "Link to issue and PR.",
+      "steps": [
+        "Pick a project you already use.",
+        "Reduce odd behaviour to the smallest case.",
+        "Find the cause in the code.",
+        "Submit the fix with a test."
+      ],
+      "effort": "2 to 6 weeks"
+    },
+    {
+      "id": "touched-the-heart",
+      "name": "Touched the Heart",
+      "rarity": "Legendary",
+      "goal": "Get a PR merged into the core of a world-class project (for example a large AI or compiler library).",
+      "why": "The most public seal of quality: strangers who maintain it trust your code.",
+      "checks": [
+        "Is the PR merged in a project with more than 20,000 stars?",
+        "Does it touch core code (not only docs)?"
+      ],
+      "proof": "Link to the merged PR.",
+      "steps": [
+        "Read issues labelled \"good first issue\".",
+        "Pick a small, clear fix.",
+        "Align with maintainers early.",
+        "Work in review changes cleanly."
+      ],
+      "effort": "4 to 12 weeks"
+    },
+    {
+      "id": "swarm-computer",
+      "name": "Swarm Computer",
+      "rarity": "Epic",
+      "goal": "Distribute training or inference across multiple GPUs with near-linear scaling.",
+      "why": "Scaling is the everyday problem of large models.",
+      "checks": [
+        "Does it run on 2 or more GPUs?",
+        "Is the scaling efficiency 80% or more?"
+      ],
+      "proof": "Scaling curve and launch script.",
+      "steps": [
+        "Start with data parallelism.",
+        "Measure communication.",
+        "Overlap compute and communication.",
+        "Publish the curve."
+      ],
+      "effort": "3 to 6 weeks"
+    },
+    {
+      "id": "better-idea",
+      "name": "Better Idea",
+      "rarity": "Legendary",
+      "goal": "Develop your own variant (optimizer, attention, compression) that is measurably better on a recognized benchmark.",
+      "why": "Proving your own ideas is the step from application to research.",
+      "checks": [
+        "Is there an ablation study?",
+        "Is the improvement statistically clear over several runs?"
+      ],
+      "proof": "Repo with scripts and results over 3 or more runs.",
+      "steps": [
+        "Find a weakness in a known method.",
+        "Implement the idea.",
+        "Test against baselines.",
+        "Ablation and error analysis."
+      ],
+      "effort": "2 to 4 months"
+    },
+    {
+      "id": "nanosecond-nomad",
+      "name": "Nanosecond Nomad",
+      "rarity": "Epic",
+      "goal": "Build a service with p99 latency under 10 ms at over 10,000 requests per second.",
+      "why": "Low latency under load needs deep systems knowledge.",
+      "checks": [
+        "Is there a reproducible load test?",
+        "Is p99 below 10 ms at 10,000 RPS or more?"
+      ],
+      "proof": "Load-test result with hardware details.",
+      "steps": [
+        "Measure a simple version.",
+        "Remove allocations and locks.",
+        "Check network and operating-system settings.",
+        "Publish the result."
+      ],
+      "effort": "3 to 6 weeks"
+    },
+    {
+      "id": "iron-heart",
+      "name": "Iron Heart",
+      "rarity": "Legendary",
+      "goal": "Get your own kernel or device driver running on real hardware.",
+      "why": "The direct line to the hardware is rare and in high demand.",
+      "checks": [
+        "Is there boot code or a driver?",
+        "Is there evidence that it runs on real hardware?"
+      ],
+      "proof": "Video or photo plus repo.",
+      "steps": [
+        "Start with a microcontroller or an emulator.",
+        "Memory and interrupts.",
+        "Talk to a device.",
+        "Show it on real hardware."
+      ],
+      "effort": "2 to 4 months"
+    },
+    {
+      "id": "the-parliament",
+      "name": "The Parliament",
+      "rarity": "Legendary",
+      "goal": "Build a distributed system with consensus that survives chaos tests.",
+      "why": "Distributed correctness is one of the hardest topics in computer science.",
+      "checks": [
+        "Are there leader election and log replication?",
+        "Does the data stay consistent through node failures?"
+      ],
+      "proof": "Test report with fault injection.",
+      "steps": [
+        "Understand a consensus protocol.",
+        "Build it with a simulation.",
+        "Inject faults deliberately.",
+        "Check linearizability."
+      ],
+      "effort": "2 to 4 months"
+    },
+    {
+      "id": "gap-reader",
+      "name": "Gap Reader",
+      "rarity": "Legendary",
+      "goal": "Find a security vulnerability and report it with a CVE number.",
+      "why": "Responsible handling of vulnerabilities is highly regarded.",
+      "checks": [
+        "Is there a CVE with your name?"
+      ],
+      "proof": "Link to the CVE.",
+      "steps": [
+        "Pick a project with a bug bounty or security policy.",
+        "Fuzzing or code review.",
+        "Report responsibly.",
+        "Add it after publication."
+      ],
+      "effort": "Undetermined"
+    },
+    {
+      "id": "the-stage",
+      "name": "The Stage",
+      "rarity": "Epic",
+      "goal": "Give a technical talk at a conference or meetup.",
+      "why": "Shows that you can pass knowledge on.",
+      "checks": [
+        "Is there a public programme with your name?"
+      ],
+      "proof": "Link to the programme or video.",
+      "steps": [
+        "Pick a topic from one of your own projects.",
+        "Start at a meetup.",
+        "Practice slides and demo.",
+        "Have it recorded."
+      ],
+      "effort": "1 to 3 months"
+    },
+    {
+      "id": "gatekeeper",
+      "name": "Gatekeeper",
+      "rarity": "Legendary",
+      "goal": "Get write access (maintainer) in a project with over 10,000 stars.",
+      "why": "The highest trust a community can give.",
+      "checks": [
+        "Are you listed as maintainer or committer?",
+        "Does the project have more than 10,000 stars?"
+      ],
+      "proof": "Entry in the maintainers file or org membership.",
+      "steps": [
+        "Contribute regularly.",
+        "Review the work of others.",
+        "Take responsibility for an area.",
+        "Wait for the invitation."
+      ],
+      "effort": "Years"
+    }
+  ]
+}

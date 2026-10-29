@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1100" height="520" viewBox="0 0 1100 520" font-family="-apple-system,Segoe UI,Roboto,Arial,sans-serif">
+  <rect width="1100" height="520" rx="18" fill="#0d0d0d"/>
+  <text x="550" y="38" font-size="20" font-weight="700" text-anchor="middle" fill="#ffffff">One action, four components. You pick what you want.</text>
+
+  <!-- data sources -->
+  <text x="100" y="82" font-size="12" font-weight="700" letter-spacing="1.5" text-anchor="middle" fill="#8b949e">YOUR DATA</text>
+  <g font-size="14" font-weight="700" text-anchor="middle">
+    <rect x="20" y="100" width="160" height="62" rx="12" fill="#161616" stroke="#34f5a0"/><text x="100" y="128" fill="#fff">GitHub</text><text x="100" y="148" font-size="11" font-weight="400" fill="#8b949e">commits, PRs, issues, repos</text>
+    <rect x="20" y="182" width="160" height="62" rx="12" fill="#161616" stroke="#38bdf8" stroke-dasharray="5 4"/><text x="100" y="210" fill="#fff">WakaTime</text><text x="100" y="230" font-size="11" font-weight="400" fill="#8b949e">optional, coding time</text>
+    <rect x="20" y="264" width="160" height="62" rx="12" fill="#161616" stroke="#fc6d26" stroke-dasharray="5 4"/><text x="100" y="292" fill="#fff">GitLab</text><text x="100" y="312" font-size="11" font-weight="400" fill="#8b949e">optional, your own commits</text>
+    <rect x="20" y="346" width="160" height="62" rx="12" fill="#161616" stroke="#b794ff" stroke-dasharray="5 4"/><text x="100" y="374" fill="#fff">Your files</text><text x="100" y="394" font-size="11" font-weight="400" fill="#8b949e">theme.json, intro.json, road.json</text>
+  </g>
+
+  <!-- arrows in -->
+  <g stroke="#3a3a3a" stroke-width="2" fill="none"><path d="M180 131 H250"/><path d="M180 213 H250"/><path d="M180 295 H250"/><path d="M180 377 H250"/></g>
+
+  <!-- action -->
+  <rect x="250" y="70" width="330" height="360" rx="16" fill="#111111" stroke="#2a2a2a"/>
+  <text x="415" y="96" font-size="12" font-weight="700" letter-spacing="1.5" text-anchor="middle" fill="#8b949e">components: ...</text>
+  <g font-size="15" font-weight="700">
+    <rect x="270" y="110" width="290" height="68" rx="12" fill="#161616" stroke="#58a6ff" stroke-width="1.5"/><text x="290" y="138" fill="#58a6ff">stats</text><text x="290" y="160" font-size="12" font-weight="400" fill="#a8b0ba">The stats card with themes and animations</text>
+    <rect x="270" y="190" width="290" height="68" rx="12" fill="#161616" stroke="#ffb800" stroke-width="1.5"/><text x="290" y="218" fill="#ffb800">achievements</text><text x="290" y="240" font-size="12" font-weight="400" fill="#a8b0ba">34 achievements with levels, tree view</text>
+    <rect x="270" y="270" width="290" height="68" rx="12" fill="#161616" stroke="#34f5a0" stroke-width="1.5"/><text x="290" y="298" fill="#34f5a0">dashboard</text><text x="290" y="320" font-size="12" font-weight="400" fill="#a8b0ba">Interactive website for GitHub Pages</text>
+    <rect x="270" y="350" width="290" height="68" rx="12" fill="#161616" stroke="#a371f7" stroke-width="1.5"/><text x="290" y="378" fill="#a371f7">road</text><text x="290" y="400" font-size="12" font-weight="400" fill="#a8b0ba">Master Road: 23 pro-level challenges</text>
+  </g>
+
+  <!-- arrows out -->
+  <g stroke="#3a3a3a" stroke-width="2" fill="none"><path d="M580 144 H650"/><path d="M580 224 H650"/><path d="M580 304 H650"/><path d="M580 384 H650"/></g>
+
+  <!-- outputs -->
+  <text x="880" y="82" font-size="12" font-weight="700" letter-spacing="1.5" text-anchor="middle" fill="#8b949e">COMMITTED TO YOUR REPO</text>
+  <g font-size="13" font-weight="700">
+    <rect x="650" y="112" width="430" height="64" rx="12" fill="#161616" stroke="#2a2a2a"/><text x="668" y="138" fill="#fff">stats.svg · stats.json</text><text x="668" y="158" font-size="11.5" font-weight="400" fill="#8b949e">Put it in your profile README as an image</text>
+    <rect x="650" y="192" width="430" height="64" rx="12" fill="#161616" stroke="#2a2a2a"/><text x="668" y="218" fill="#fff">achievements.svg · -all.svg · -closest.svg · .json · .html</text><text x="668" y="238" font-size="11.5" font-weight="400" fill="#8b949e">Cards for your README and data for your own site</text>
+    <rect x="650" y="272" width="430" height="64" rx="12" fill="#161616" stroke="#2a2a2a"/><text x="668" y="298" fill="#fff">index.html · assets/</text><text x="668" y="318" font-size="11.5" font-weight="400" fill="#8b949e">Enable GitHub Pages and you have a live dashboard</text>
+    <rect x="650" y="352" width="430" height="64" rx="12" fill="#161616" stroke="#2a2a2a"/><text x="668" y="378" fill="#fff">road.json · road-state.json</text><text x="668" y="398" font-size="11.5" font-weight="400" fill="#8b949e">Your progress: add a station to road-state.json</text>
+  </g>
+
+  <text x="550" y="478" font-size="13" text-anchor="middle" fill="#8b949e">Dashed boxes are optional. Nothing is sent anywhere: the action only writes files into your own repo.</text>
+  <text x="550" y="500" font-size="12" text-anchor="middle" fill="#5f6670">uses: nkunze2306/github-achievements-by-niounze@v7 · with: components: stats,achievements</text>
+</svg>

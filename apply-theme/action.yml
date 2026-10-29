@@ -1,0 +1,26 @@
+name: Apply theme from issue
+description: Used by the dashboard "Save & rebuild" button. Validates the theme in the issue body and writes theme.json. Only run it for issues of the repo owner.
+inputs:
+  theme-file:
+    description: Path of the theme file to write
+    required: false
+    default: theme.json
+  issue-body:
+    description: Body of the issue with the theme settings (JSON)
+    required: true
+outputs:
+  theme:
+    description: The validated theme as one line of JSON
+    value: ${{ steps.apply.outputs.theme }}
+runs:
+  using: composite
+  steps:
+    - uses: actions/setup-node@v4
+      with:
+        node-version: 20
+    - id: apply
+      shell: bash
+      env:
+        ISSUE_BODY: ${{ inputs.issue-body }}
+        THEME_FILE: ${{ inputs.theme-file }}
+      run: echo "theme=$(node "${{ github.action_path }}/../stats/apply-theme.mjs")" >> "$GITHUB_OUTPUT"

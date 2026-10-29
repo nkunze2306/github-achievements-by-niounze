@@ -1,0 +1,43 @@
+# Everything switched on: stats card, achievements, dashboard website, Master Road,
+# WakaTime and GitLab as extra data sources. Remove what you do not need.
+name: Update stats
+on:
+  schedule:
+    - cron: '0 * * * *'
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: [theme.json, intro.json, road.json, road-state.json]
+permissions:
+  contents: write
+concurrency:
+  group: update-stats
+  cancel-in-progress: false
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.STATS_TOKEN || secrets.GITHUB_TOKEN }} # a PAT makes GitHub Pages rebuild after the push
+          ref: main
+      - uses: nkunze2306/github-achievements-by-niounze@v7
+        with:
+          token: ${{ secrets.STATS_TOKEN || secrets.GITHUB_TOKEN }}
+          components: stats,achievements,dashboard,road
+          timezone: Europe/Berlin
+          wakatime-key: ${{ secrets.WAKATIME_API_KEY }}                  # optional
+          gitlab-sources: '[{"host":"https://gitlab.com","token":"${{ secrets.GITLAB_TOKEN }}"}]'  # optional
+          gitlab-author-emails: 'you@example.com'                        # optional, only commits with these author e-mails count
+          commit: 'true'
+      # Optional: GitHub caches README images. A URL with the commit SHA never changes, so the README always shows the newest image.
+      - name: Pin README images to the commit that last changed them
+        run: |
+          git pull --rebase
+          for f in stats.svg achievements.svg; do
+            [ -f "$f" ] || continue
+            url="https://raw.githubusercontent.com/${GITHUB_REPOSITORY}/$(git log -1 --format=%H -- "$f")/${f}"
+            sed -i -E "s#(https://raw\.githubusercontent\.com/[^\"' )]*/)?${f//./\.}(\?v=[0-9a-f]+)?#${url}#g" README.md
+          done
+          git add README.md
+          git diff --cached --quiet || (git commit -m "chore: pin README images" && git push)

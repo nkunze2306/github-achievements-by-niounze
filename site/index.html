@@ -1,0 +1,779 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GitHub Stats</title>
+<meta name="description" content="All-time GitHub statistics, updated automatically.">
+<style>
+  :root {
+    --bg: #070707; --card: #121212; --line: #242424; --text: #fff; --mute: #8b8b8b; --dim: #5c5c5c; --track: #2a2a2a; --bar: #2f3340;
+    --green: #34f5a0; --purple: #b794ff; --blue: #38bdf8; --pink: #ff5c9a; --yellow: #fbbf24;
+    color-scheme: dark;
+  }
+  @font-face { font-family: 'Space Grotesk'; font-weight: 400 700; font-display: swap; src: url(assets/space-grotesk.woff2) format('woff2'); }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text); font-family: 'Space Grotesk', 'Segoe UI', -apple-system, 'Helvetica Neue', Arial, sans-serif; -webkit-font-smoothing: antialiased; }
+  a { color: inherit; text-decoration: none; }
+  main { max-width: 1040px; margin: 0 auto; padding: 24px 16px 40px; }
+  .grid { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 12px; }
+  .c2 { grid-column: span 2; } .c3 { grid-column: span 3; } .c4 { grid-column: span 4; } .c5 { grid-column: span 5; }
+  .c6 { grid-column: span 6; } .c7 { grid-column: span 7; } .c8 { grid-column: span 8; } .c9 { grid-column: span 9; } .c12 { grid-column: span 12; }
+
+  header { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; margin-bottom: 14px; }
+  .avatar { width: 48px; height: 48px; border-radius: 50%; border: 1.5px solid var(--green); box-shadow: 0 0 14px #34f5a055; background: #0f1f18; object-fit: cover; }
+  .who b { display: block; font-size: 19px; }
+  .who span { font-size: 12px; color: var(--dim); }
+  .btns { display: flex; gap: 8px; flex-wrap: wrap; margin: 0 0 14px; }
+  .btn { font-size: 12.5px; padding: 8px 16px; border-radius: 999px; border: 1px solid #2c2c2c; background: #151515; color: #ddd; transition: border-color .15s, color .15s, transform .15s; }
+  .btn:hover { border-color: var(--green); color: #fff; transform: translateY(-1px); }
+  .btn.primary { background: var(--green); border-color: var(--green); color: #04120b; font-weight: 700; }
+  .btn.primary:hover { color: #04120b; filter: brightness(1.08); }
+  .pills { margin-left: auto; display: flex; gap: 8px; flex-wrap: wrap; }
+  .pill { display: inline-flex; align-items: center; justify-content: center; gap: 4px; text-align: center; background: #151515; border: 1px solid #2c2c2c; border-radius: 999px; padding: 7px 14px; font-size: 12px; color: #9a9a9a; }
+  .pill b { color: #fff; }
+
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 16px 18px; position: relative; min-width: 0; transition: border-color .2s, transform .2s; }
+  .card:hover { border-color: #3a3a3a; }
+  .t { display: flex; align-items: center; gap: 10px; font-size: 11px; font-weight: 700; letter-spacing: 1.4px; text-transform: uppercase; color: var(--c, var(--mute)); margin-bottom: 12px; }
+  .t .r { margin-left: auto; font-weight: 400; letter-spacing: 0; text-transform: none; font-size: 11px; text-align: right; color: var(--mute); }
+  .hero2 { font-size: 40px; font-weight: 800; line-height: 1; margin-right: 18px; }
+  .big { font-size: 28px; font-weight: 700; line-height: 1.1; }
+  .sub { font-size: 12px; color: var(--mute); }
+  .row { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+  .hero { font-size: clamp(48px, 9vw, 68px); font-weight: 800; line-height: 1; margin: 10px 0 8px; font-variant-numeric: tabular-nums; }
+  .split { display: flex; justify-content: space-between; align-items: baseline; border-top: 1px solid var(--line); margin-top: 16px; padding-top: 12px; font-size: 12px; color: var(--mute); }
+  .split b { color: #fff; font-size: 19px; }
+  .grow { color: var(--green); } .shrink { color: var(--pink); }
+
+  .track { height: 7px; border-radius: 4px; background: var(--track); margin-top: 12px; overflow: hidden; }
+  .fill { height: 100%; width: 0; border-radius: 4px; background: var(--c); transition: width 1.1s cubic-bezier(.2, .8, .2, 1); }
+  .in .fill { width: var(--w); }
+
+  .heat { display: grid; grid-template-columns: repeat(53, minmax(0, 1fr)); gap: 3px; }
+  .heat i { aspect-ratio: 1; border-radius: 2px; background: #1d211f; transition: transform .1s; }
+  .heat i:hover { transform: scale(1.5); position: relative; z-index: 2; }
+  .l1 { background: #0e4f35 !important; } .l2 { background: #12804f !important; } .l3 { background: #1fb870 !important; }
+  .l4 { background: var(--green) !important; }
+  .months { display: grid; grid-template-columns: repeat(53, minmax(0, 1fr)); gap: 3px; margin-top: 6px; font-size: 10px; color: var(--dim); }
+  .months span { white-space: nowrap; }
+  .legend { display: flex; align-items: center; gap: 3px; font-size: 10px; color: var(--mute); } .legend i { width: 9px; height: 9px; border-radius: 2px; display: block; background: #1d211f; } .legend span { margin: 0 4px; }
+  .stats4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; border-top: 1px solid var(--line); margin-top: 14px; padding-top: 14px; }
+  .stats4 b { display: block; font-size: 17px; } .stats4 small { font-size: 9px; letter-spacing: 1px; text-transform: uppercase; color: var(--dim); font-weight: 700; }
+
+  .seg { display: flex; gap: 4px; height: 13px; margin: 6px 0 14px; }
+  .seg i { display: block; border-radius: 7px; min-width: 6px; transform-origin: left; transform: scaleX(0); transition: transform 1s cubic-bezier(.2, .8, .2, 1); }
+  .in .seg i { transform: scaleX(1); }
+  .legend2 { display: flex; flex-wrap: wrap; gap: 8px 22px; font-size: 12px; color: var(--mute); }
+  .legend2 b { color: #fff; font-weight: 600; } .legend2 em { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 7px; font-style: normal; }
+  .note { font-size: 10.5px; color: var(--dim); margin-top: 14px; }
+
+  .cols { display: flex; align-items: flex-end; gap: 6px; height: 120px; margin-top: 22px; }
+  .v { font-size: 11.5px; color: var(--mute); text-align: center; line-height: 16px; font-variant-numeric: tabular-nums; font-weight: 600; }
+  .cols.thin .v { font-size: 9px; font-weight: 500; }
+  .months span { display: flex; flex-direction: column; gap: 1px; } .months small { font-size: 9.5px; color: var(--text); font-weight: 600; }
+  .peakv { color: var(--text); }
+  .tall { grid-row: span 2; }
+  .achhead { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+  .achby { margin-left: 4px; font-size: 11px; font-weight: 400; letter-spacing: 0; text-transform: none; color: #6a6a6a; }
+  .achcnt { color: var(--mute); font-size: 13px; } .achcnt b { color: #fff; }
+  .achgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 6px; margin-top: 12px; }
+  .ac { display: flex; align-items: center; gap: 14px; padding: 14px 16px; border: 1px solid #262626; border-radius: 14px; background: #141414; }
+  .ac.leg { border-color: #ffd34e55; }
+  .ac svg { flex: none; } .ac .ab { flex: 1; min-width: 0; }
+  .ac .an { display: flex; justify-content: space-between; align-items: center; gap: 8px; font-weight: 700; font-size: 15px; }
+  .ac .an i { font-style: normal; font-size: 11.5px; padding: 2px 9px; border-radius: 999px; border: 1px solid; white-space: nowrap; }
+  .ac .bar { height: 6px; border-radius: 3px; background: #242424; margin: 7px 0 5px; overflow: hidden; } .ac .bar > div { height: 100%; border-radius: 3px; }
+  .ac .as { display: flex; justify-content: space-between; font-size: 12.5px; color: var(--mute); }
+  .ac.lock .an span { color: #9a9a9a; }
+  .achmore { margin-top: 12px; text-align: center; }
+  .achgroup { margin: 16px 0 0; font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: #777; font-weight: 700; }
+  .mix { margin-top: 22px; display: grid; gap: 14px; }
+  .mixh { display: flex; justify-content: space-between; font-size: 12.5px; color: var(--mute); }
+  .mixh em { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 8px; }
+  .mixh b { color: #fff; font-variant-numeric: tabular-nums; }
+  .mix .track { margin-top: 6px; }
+  .years { display: flex; justify-content: flex-end; margin: -2px 0 10px; }
+  .tog { display: inline-flex; gap: 2px; background: #1a1a1a; border: 1px solid var(--line); border-radius: 999px; padding: 2px; }
+  .tog button { font: inherit; font-size: 11px; color: var(--mute); background: none; border: 0; border-radius: 999px; padding: 3px 11px; cursor: pointer; }
+  .tog button.on { background: var(--blue); color: #04121a; font-weight: 700; }
+  .cols .col { flex: 1; height: 100%; display: flex; flex-direction: column; justify-content: flex-end; align-items: stretch; gap: 1.5px; min-width: 0; }
+  .cols .col > i { display: block; border-radius: 3px; height: 0; transition: height 1s cubic-bezier(.2, .8, .2, 1); }
+  .in .cols .col > i { height: var(--h); }
+  .cols .col:hover { filter: brightness(1.25); }
+  .axis { display: flex; gap: 6px; margin-top: 7px; font-size: 10px; color: var(--dim); } .axis span { flex: 1; text-align: center; }
+  .cols.thin { gap: 3px; } .axis.thin { gap: 3px; }
+  .peak { background: var(--c) !important; }
+  .gray { background: var(--bar); }
+  .mini { display: flex; gap: 10px; align-items: center; font-size: 11px; color: var(--mute); } .mini i { width: 8px; height: 8px; border-radius: 2px; display: inline-block; margin-right: 5px; }
+
+  .repo { display: grid; grid-template-columns: 130px 1fr 44px; align-items: center; gap: 12px; font-size: 13px; margin: 14px 0; }
+  .repo .track { margin: 0; } .repo span:last-child { text-align: right; color: var(--mute); font-size: 12px; }
+  .repo span:first-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+  footer { margin-top: 18px; text-align: right; font-size: 11px; color: var(--dim); }
+  #tip { position: fixed; pointer-events: none; z-index: 10; background: #1c1c1c; border: 1px solid #383838; border-radius: 8px; padding: 6px 10px; font-size: 12px; box-shadow: 0 6px 20px #000a; opacity: 0; transition: opacity .1s; white-space: nowrap; }
+  #err { text-align: center; color: var(--mute); padding: 80px 0; }
+
+  @media (max-width: 760px) {
+    .tall { grid-row: auto; }
+    .cols.thin .v { display: none; } .hero { font-size: 52px; }
+    .c2 { grid-column: span 6; } .c3, .c4, .c5, .c6, .c7, .c8, .c9 { grid-column: span 12; }
+    .c4.half { grid-column: span 6; }
+    .pills { margin-left: 0; } .repo { grid-template-columns: 100px 1fr 40px; }
+  }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+
+  /* Achievements-Kachel an die übrigen Kacheln angleichen (achievements-ui.js wird von der Action bei jedem Lauf neu geschrieben, darum hier) */
+  #achCard .ach-root { font-family: inherit; }
+  #achCard .ach-dot { display: none !important; }
+  #achCard .ach-title { color: var(--c); letter-spacing: 1.4px; }
+
+  /* Theme & look: schmale Leiste, klappt bei Bedarf auf */
+  .tlcard { padding: 12px 18px !important; }
+  .tl .bar { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; min-height: 34px; }
+  .tl .bar .t { margin: 0; }
+  .tl .sum { display: flex; gap: 6px; flex-wrap: wrap; flex: 1; }
+  .tl .sum span { font-size: 12px; color: #cfcfcf; border: 1px solid #2a2a2a; border-radius: 999px; padding: 3px 10px; background: #151515; }
+  .tl .st { font-size: 12px; color: var(--mute); }
+  .tl .bar .btn { font: inherit; font-size: 12.5px; padding: 7px 14px; cursor: pointer; }
+  .tl .body { display: none; grid-template-columns: 1.15fr 1fr 1.25fr; gap: 28px; margin-top: 14px; padding-top: 4px; border-top: 1px solid #232323; }
+  .tl.open .body { display: grid; }
+  .tl .lbl { font-size: 10.5px; font-weight: 700; letter-spacing: 1.3px; text-transform: uppercase; color: var(--dim); margin: 14px 0 10px; }
+  .tl .ov { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+  .tl .ov button { background: #141414; border: 1px solid #2c2c2c; border-radius: 12px; padding: 10px 6px 8px; display: flex; flex-direction: column; align-items: center; gap: 6px; color: #cfcfcf; font: inherit; font-size: 12.5px; cursor: pointer; transition: border-color .15s, box-shadow .15s, color .15s; }
+  .tl .ov button:hover { border-color: #444; }
+  .tl .ov button .ic { height: 30px; display: grid; place-items: center; }
+  .tl .ov button.on { border-color: var(--ac); color: #fff; box-shadow: 0 0 0 1px var(--ac), 0 0 14px color-mix(in srgb, var(--ac) 40%, transparent); }
+  .tl .hint { font-size: 11.5px; color: var(--dim); margin-top: 8px; }
+  .tl .rings { display: flex; flex-wrap: wrap; gap: 6px; }
+  .tl .rings button { background: #141414; border: 1px solid #2c2c2c; border-radius: 999px; padding: 7px 15px; color: #cfcfcf; font: inherit; font-size: 12.5px; cursor: pointer; transition: border-color .15s, color .15s; }
+  .tl .rings button:hover { border-color: #444; }
+  .tl .rings button.on { border-color: var(--green); color: #fff; background: color-mix(in srgb, var(--green) 9%, #141414); }
+  .tl .drow { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 6px 0; font-size: 13px; color: #ddd; transition: opacity .15s; }
+  .tl .drow.off { opacity: .35; pointer-events: none; }
+  .tl .dens { display: flex; align-items: center; gap: 12px; flex: 1; justify-content: flex-end; }
+  .tl .dens span { color: var(--mute); font-size: 12px; }
+  .tl input[type=range] { -webkit-appearance: none; appearance: none; width: min(170px, 55%); height: 6px; border-radius: 6px; margin: 0; outline: none; cursor: pointer; background: linear-gradient(90deg, #ff9f5a var(--p), #2a2a2a var(--p)); }
+  .tl input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 18px; height: 18px; border-radius: 50%; background: #fff; border: 0; box-shadow: 0 0 10px rgba(255, 159, 90, .7); }
+  .tl input[type=range]::-moz-range-thumb { width: 18px; height: 18px; border-radius: 50%; background: #fff; border: 0; box-shadow: 0 0 10px rgba(255, 159, 90, .7); }
+  .tl .sw { position: relative; width: 42px; height: 24px; flex: none; border-radius: 999px; border: 1px solid #2c2c2c; background: #1b1b1b; cursor: pointer; padding: 0; transition: background .15s, border-color .15s; }
+  .tl .sw::after { content: ''; position: absolute; top: 3px; left: 3px; width: 16px; height: 16px; border-radius: 50%; background: #555; transition: left .15s, background .15s; }
+  .tl .sw.on { background: color-mix(in srgb, var(--green) 22%, #0f0f0f); border-color: var(--green); }
+  .tl .sw.on::after { left: 21px; background: var(--green); }
+  .tl .pv { position: relative; height: 124px; margin-top: 14px; border: 1px solid #2a2a2a; border-radius: 12px; background: #0d0d0d; overflow: hidden; }
+  .tl .pv .edge { position: absolute; left: -1px; right: -1px; bottom: -1px; height: 38px; border: 1px solid #2c2c2c; border-radius: 12px 12px 0 0; background: #151515; }
+  .tl .pv .it { position: absolute; top: 0; left: 0; }
+  .tl .pv svg { display: block; }
+  .tl .pv .fl { animation: pvFall linear infinite; }
+  .tl .pv .sway { animation: pvSway ease-in-out infinite alternate; }
+  .tl .pv .pile { position: absolute; bottom: 35px; left: 0; right: 0; height: 20px; }
+  .tl .pv .pile span { position: absolute; bottom: 0; }
+  .tl .pv .pile i { display: block; }
+  .tl .pv .pile .gust { animation: pvGust 10s ease-in infinite; }
+  .tl .pv .bf { animation: pvBf ease-in-out infinite; }
+  .tl .pv .flap { animation: pvFlap .18s linear infinite alternate; }
+  .tl .pv .none { position: absolute; inset: 0 0 38px; display: grid; place-items: center; font-size: 12px; color: var(--dim); }
+  @keyframes pvFall { from { transform: translate(var(--x0), -34px); opacity: 0 } 8% { opacity: 1 } 88% { opacity: 1 } to { transform: translate(var(--x1), var(--y1)); opacity: 0 } }
+  @keyframes pvSway { from { transform: translateX(-7px) rotate(-35deg) } to { transform: translateX(7px) rotate(35deg) } }
+  @keyframes pvGust { 0%, 76% { transform: none; opacity: 1 } 88% { transform: translate(170px, -34px) rotate(50deg); opacity: 0 } 89% { transform: none; opacity: 0 } 100% { opacity: 1 } }
+  @keyframes pvBf { 0% { transform: translate(var(--x0), 14px) } 30% { transform: translate(var(--xl), 62px) } 62% { transform: translate(var(--xl), 62px) } 80% { transform: translate(calc(var(--xl) + 60px), 6px) } 100% { transform: translate(var(--x1), 20px) } }
+  @keyframes pvFlap { from { transform: scaleX(1) } to { transform: scaleX(.3) } }
+  @media (prefers-reduced-motion: reduce) { .tl .pv.rm * { animation-play-state: paused !important; } }
+  .tl .xtra { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 0 28px; border-top: 1px solid #232323; }
+  .tl .xtra:empty { display: none; }
+  .tl .xtra .lbl { color: var(--ac); }
+  .tl .cs { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
+  .tl .cs { gap: 8px; }
+  .tl .cs button { position: relative; width: 26px; height: 26px; border-radius: 50%; border: 2px solid rgba(255, 255, 255, .18); padding: 0; cursor: pointer; opacity: .55; transition: transform .12s, opacity .12s, box-shadow .12s; }
+  .tl .cs button:hover { opacity: .9; }
+  .tl .cs button.on { opacity: 1; transform: scale(1.18); border-color: #fff; box-shadow: 0 0 0 3px #0f0f0f, 0 0 0 5px var(--ac), 0 0 14px var(--ac); }
+  .tl .cs button.on::after { content: '✓'; position: absolute; inset: 0; display: grid; place-items: center; font-size: 13px; font-weight: 800; color: #111; text-shadow: 0 0 3px rgba(255, 255, 255, .8); }
+  .tl .cs input[type=color] { width: 26px; height: 26px; padding: 0; border: 2px dashed rgba(255, 255, 255, .3); border-radius: 50%; background: none; cursor: pointer; opacity: .55; }
+  .tl .cs input[type=color].on { opacity: 1; border: 2px solid #fff; box-shadow: 0 0 0 3px #0f0f0f, 0 0 0 5px var(--ac), 0 0 14px var(--ac); }
+  .tl .hx { font-style: normal; font-size: 11px; color: var(--mute); margin-left: 6px; letter-spacing: .5px; }
+  .tl .pv svg.x { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+  .tl .acts { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-top: 12px; }
+  .tl .acts .btn { font: inherit; font-size: 13.5px; padding: 10px 20px; cursor: pointer; }
+  .tl .msg { font-size: 12px; color: var(--mute); margin-top: 8px; min-height: 1em; }
+  .tl .foot { display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; font-size: 11.5px; color: var(--dim); margin-top: 10px; }
+  .tl .foot button { background: none; border: 0; color: var(--mute); font: inherit; cursor: pointer; padding: 0; }
+  .tl .foot button:hover { color: #fff; }
+  @media (max-width: 900px) { .tl .body { grid-template-columns: 1fr; gap: 6px; } .tl .sum { order: 3; flex-basis: 100%; } }
+</style>
+</head>
+<body>
+<main id="app"><div id="err">Loading stats…</div></main>
+<div id="tip"></div>
+<script>
+const COL = { green: '#34f5a0', purple: '#b794ff', blue: '#38bdf8', pink: '#ff5c9a', yellow: '#fbbf24' };
+const fmt = (n) => Math.round(n).toLocaleString('de-DE');
+const short = (n) => (n >= 1e6 ? (n / 1e6).toFixed(2).replace(/\.?0+$/, '') + 'M' : n >= 1000 ? Math.round(n / 1000) + 'k' : String(Math.round(n)));
+const tokShort = (n) => (n >= 1e9 ? (n / 1e9).toFixed(2) + 'B' : n >= 1e6 ? (n / 1e6).toFixed(1) + 'M' : n >= 1e3 ? (n / 1e3).toFixed(1) + 'k' : String(Math.round(n)));
+const vivid = (hex) => { const n = parseInt(hex.slice(1), 16); return 0.299 * (n >> 16) + 0.587 * ((n >> 8) & 255) + 0.114 * (n & 255) < 90 ? '#8b949e' : hex; };
+const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
+const pct = (a, b) => (b ? Math.round((a / b) * 100) : 0);
+const card = (cls, title, color, right, body, hint = '') =>
+  `<section class="card ${cls}" style="--c:${COL[color]}"${hint ? ` data-tip="${esc(hint)}"` : ''}><div class="t">${esc(title)}${right ? `<span class="r">${right}</span>` : ''}</div>${body}</section>`;
+const tip = (s) => `data-tip="${esc(s)}"`;
+
+function streaks(weeks) {
+  const days = weeks.flat();
+  let longest = 0, run = 0, best = 0, active = 0;
+  for (const d of days) { if (d.count > 0) { run++; active++; longest = Math.max(longest, run); best = Math.max(best, d.count); } else run = 0; }
+  let current = 0;
+  for (let i = days.length - 1; i >= 0; i--) { if (days[i].count > 0) current++; else if (i === days.length - 1) continue; else break; }
+  return { current, longest, active, best };
+}
+
+function heatBlock(weeks, skipFirst = true) {
+  const st = streaks(weeks);
+  const max = Math.max(1, ...weeks.flat().map((x) => x.count));
+  let cells = '', months = '', lastM = -1;
+  const monthSum = {};
+  weeks.flat().forEach((x) => { monthSum[x.date.slice(0, 7)] = (monthSum[x.date.slice(0, 7)] || 0) + x.count; });
+  weeks.forEach((w, wi) => {
+    w.forEach((day) => {
+      const dow = new Date(day.date + 'T00:00:00Z').getUTCDay();
+      const l = day.count === 0 ? 0 : Math.min(4, Math.ceil((day.count / max) * 4));
+      const label = new Date(day.date + 'T00:00:00Z').toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' });
+      cells += `<i class="l${l}" style="grid-column:${wi + 1};grid-row:${dow + 1}" ${tip(`${day.count} contribution${day.count === 1 ? '' : 's'} · ${label}`)}></i>`;
+    });
+    const m = new Date(w[0].date + 'T00:00:00Z').getUTCMonth();
+    if (m !== lastM) {
+      if (lastM !== -1 || !skipFirst) months += `<span style="grid-column:${wi + 1} / span 4">${new Date(Date.UTC(2000, m, 1)).toLocaleString('en', { month: 'short' })}<small>${fmt(monthSum[w[0].date.slice(0, 7)] || 0)}</small></span>`;
+      lastM = m;
+    }
+  });
+  const cols = `grid-template-columns:repeat(${weeks.length}, minmax(0, 1fr))`;
+  const html = `<div class="heat" style="${cols}">${cells}</div><div class="months" style="${cols}">${months}</div>
+       <div class="stats4"><div><b style="color:var(--yellow)">${st.current} days</b><small>Current streak</small></div><div><b>${st.longest} days</b><small>Longest streak</small></div><div><b>${st.active} days</b><small>Active days</small></div><div><b>${st.best}</b><small>Best day</small></div></div>`;
+  return { html, total: weeks.flat().reduce((sum, x) => sum + x.count, 0) };
+}
+
+function render(d) {
+  const hb = heatBlock(d.weeks);
+  const yearList = d.calendars ? Object.keys(d.calendars).sort().reverse() : [];
+  const yearBtns = yearList.length ? `<div class="years"><span class="tog"><button class="on" data-year="last">Last 12 months</button>${yearList.map((y) => `<button data-year="${y}">${y}</button>`).join('')}</span></div>` : '';
+  const add = d.addHuman + d.addAI, hr = add ? d.addHuman / add : 1;
+  document.title = `${d.name} · GitHub Stats`;
+
+  // Aufteilung der Contributions + Radar (Activity overview)
+  const mixItems = [['Commits', d.commitsAll, COL.green], ['Pull requests', d.pr.total, COL.blue], ['Issues', d.issues.total, COL.pink], ['Code review', d.reviews, COL.purple]];
+  const mixTotal = mixItems.reduce((s, m) => s + m[1], 0) || 1;
+  const mixHtml = `<div class="mix">${mixItems.map(([l, v, c]) => {
+    const p = Math.round((v / mixTotal) * 100);
+    return `<div ${tip(`${l}: ${fmt(v)} of ${fmt(mixTotal)} contributions (${p}%)`)}><div class="mixh"><span><em style="background:${c}"></em>${l}</span><b>${fmt(v)} · ${p}%</b></div><div class="track"><div class="fill" style="--w:${p}%;background:${c}"></div></div></div>`;
+  }).join('')}</div>`;
+  const radar = (() => {
+    const R = 74, cx = 210, cy = 134;
+    const axes = [['Code review', d.reviews, 0, -1], ['Issues', d.issues.total, 1, 0], ['Pull requests', d.pr.total, 0, 1], ['Commits', d.commitsAll, -1, 0]];
+    const mx = Math.max(1, ...axes.map((x) => x[1]));
+    const pts = axes.map(([, v, dx, dy]) => [cx + dx * (v / mx) * R, cy + dy * (v / mx) * R]);
+    const labels = axes.map(([l, v, dx, dy]) => {
+      const x = cx + dx * (R + 16), anchor = dx === 0 ? 'middle' : dx > 0 ? 'start' : 'end';
+      const y0 = dy < 0 ? cy - R - 30 : dy > 0 ? cy + R + 24 : cy - 2;
+      return `<text x="${x}" y="${y0}" text-anchor="${anchor}" fill="#fff" font-size="14" font-weight="700">${Math.round((v / mixTotal) * 100)}%</text><text x="${x}" y="${y0 + 16}" text-anchor="${anchor}" fill="#8b8b8b" font-size="12.5">${l}</text>`;
+    }).join('');
+    const dots = pts.map(([px, py], i) => `<circle cx="${px.toFixed(1)}" cy="${py.toFixed(1)}" r="4.2" fill="#34f5a0" stroke="#fff" stroke-width="1.6" data-tip="${esc(axes[i][0])}: ${fmt(axes[i][1])}"></circle>`).join('');
+    return `<svg viewBox="0 0 420 262" style="width:100%;max-width:460px;display:block;margin:0 auto" role="img" aria-label="Activity overview">
+      <line x1="${cx}" y1="${cy - R - 6}" x2="${cx}" y2="${cy + R + 6}" stroke="#34f5a0" stroke-opacity=".75" stroke-width="1.6"/>
+      <line x1="${cx - R - 6}" y1="${cy}" x2="${cx + R + 6}" y2="${cy}" stroke="#34f5a0" stroke-opacity=".75" stroke-width="1.6"/>
+      <polygon points="${pts.map((p) => p.map((n) => n.toFixed(1)).join(',')).join(' ')}" fill="#34f5a0" fill-opacity=".28" stroke="#34f5a0" stroke-width="1.6" stroke-linejoin="round"/>
+      ${dots}${labels}</svg>`;
+  })();
+
+  // languages
+  const langs = d.languages.slice(0, 6).map((l) => ({ ...l, color: vivid(l.color) })), lt = langs.reduce((s, l) => s + l.size, 0) || 1;
+  const seg = langs.map((l, i) => `<i style="flex:${l.size};background:${l.color};transition-delay:${i * 60}ms" ${tip(`${l.name} · ${Math.round((l.size / lt) * 100)}%`)}></i>`).join('');
+  const legend = langs.map((l) => `<span><em style="background:${l.color}"></em><b>${esc(l.name)}</b> ${Math.round((l.size / lt) * 100)}%</span>`).join('');
+
+  // monthly
+  const mmax = Math.max(1, ...d.monthly.map((m) => m.human + m.ai));
+  const monthly = d.monthly.map((m) => {
+    const t = `${m.name || m.label}: ${m.human} human · ${m.ai} AI`;
+    return `<div class="col" ${tip(t)}><b class="v peakv">${m.human + m.ai}</b><i style="--h:${(m.ai / mmax) * 100}%;background:var(--purple)"></i><i style="--h:${(m.human / mmax) * 100}%;background:var(--green)"></i></div>`;
+  }).join('');
+
+  // top repos
+  const tmax = Math.max(1, ...d.topRepos.map((r) => r.count));
+  const repos = d.topRepos.map((r) => `<div class="repo"><span>${esc(r.name)}</span><div class="track"><div class="fill" style="--w:${(r.count / tmax) * 100}%"></div></div><span>${fmt(r.count)}</span></div>`).join('');
+
+  // weekday / hour
+  const DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+  const wmax = Math.max(1, ...d.weekday), wpeak = d.weekday.indexOf(Math.max(...d.weekday));
+  const wd = d.weekday.map((v, i) => `<div class="col" ${tip(`${DAYS[i]}: ${fmt(v)} commits`)}><b class="v${i === wpeak ? ' peakv' : ''}">${fmt(v)}</b><i class="${i === wpeak ? 'peak' : 'gray'}" style="--h:${Math.max(6, (v / wmax) * 100)}%"></i></div>`).join('');
+  const hmax = Math.max(1, ...d.hours), hpeak = d.hours.indexOf(Math.max(...d.hours));
+  const mood = hpeak >= 21 || hpeak < 5 ? 'night owl' : hpeak < 10 ? 'early bird' : 'daytime';
+  const hh = d.hours.map((v, i) => `<div class="col" ${tip(`${String(i).padStart(2, '0')}:00 · ${fmt(v)} commits`)}><b class="v${i === hpeak ? ' peakv' : ''}">${fmt(v)}</b><i class="${i === hpeak ? 'peak' : 'gray'}" style="--h:${Math.max(6, (v / hmax) * 100)}%"></i></div>`).join('');
+  const hAxis = Array.from({ length: 24 }, (_, i) => `<span>${[0, 6, 12, 18, 23].includes(i) ? String(i).padStart(2, '0') : ''}</span>`).join('');
+
+  const upd = new Date(d.updated).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+  const net = add - d.del;
+
+  // WakaTime
+  let wakaHtml = '';
+  if (d.waka) {
+    const k = d.waka;
+    const dur = (sec) => { const h = Math.floor(sec / 3600), m = Math.round((sec % 3600) / 60); return h ? fmt(h) + 'h ' + String(m).padStart(2, '0') + 'm' : m + 'm'; };
+    const dmax = Math.max(...k.daily.map((x) => x.sec)), dpk = k.daily.findIndex((x) => x.sec === dmax);
+    // Wochensummen aus den gespeicherten Tageswerten, Gesamtzeit = Summe aller Wochen
+    const hist = k.history || k.daily.map((x) => ({ date: x.date, sec: x.sec }));
+    const wkStart = (dt) => { const d0 = new Date(dt + 'T00:00:00Z'); return new Date(d0.getTime() - ((d0.getUTCDay() + 6) % 7) * 864e5).toISOString().slice(0, 10); };
+    const byWeek = {};
+    hist.forEach((x) => { const w = wkStart(x.date); byWeek[w] = (byWeek[w] || 0) + x.sec; });
+    const thisWeek = wkStart(k.daily[k.daily.length - 1].date);
+    const weekItems = Array.from({ length: 12 }, (_, i) => ({ start: new Date(Date.parse(thisWeek + 'T00:00:00Z') + (i - 11) * 7 * 864e5).toISOString().slice(0, 10), sec: 0 }));
+    weekItems.forEach((w) => { w.sec = byWeek[w.start] || 0; });
+    const allTimeSum = Object.values(byWeek).reduce((a, b) => a + b, 0);
+    const weeksTracked = Object.keys(byWeek).length;
+    const wmax = Math.max(...weekItems.map((x) => x.sec)), wpk = weekItems.findIndex((x) => x.sec === wmax);
+    const wcols = weekItems.map((x, i) => `<div class="col" ${tip(`Week of ${x.start}: ${dur(x.sec)}`)}><b class="v${i === wpk && wmax ? ' peakv' : ''}">${x.sec ? (x.sec / 3600).toFixed(1) + 'h' : '–'}</b><i class="${i === wpk && wmax ? 'peak' : 'gray'}" style="--h:${Math.max(6, wmax ? (x.sec / wmax) * 100 : 0)}%"></i></div>`).join('');
+    const waxis = weekItems.map((x) => `<span>${Number(x.start.slice(8))}.${Number(x.start.slice(5, 7))}.</span>`).join('');
+    const kcols = k.daily.map((x, i) => `<div class="col" ${tip(`${x.date}: ${dur(x.sec)}`)}><b class="v${i === dpk && dmax ? ' peakv' : ''}">${x.sec ? (x.sec / 3600).toFixed(1) + 'h' : '–'}</b><i class="${i === dpk && dmax ? 'peak' : 'gray'}" style="--h:${Math.max(6, dmax ? (x.sec / dmax) * 100 : 0)}%"></i></div>`).join('');
+    const kaxis = k.daily.map((x) => `<span>${Number(x.date.slice(8))}</span>`).join('');
+    const list = (items) => {
+      const tot = items.reduce((s2, x) => s2 + x.sec, 0) || 1, mx = Math.max(1, ...items.map((x) => x.sec));
+      return items.map((x) => `<div class="repo" style="grid-template-columns:130px 1fr 110px" ${tip(`${x.name}: ${dur(x.sec)}`)}><span>${esc(x.name)}</span><div class="track"><div class="fill" style="--w:${(x.sec / mx) * 100}%"></div></div><span>${dur(x.sec)} · ${Math.round((x.sec / tot) * 100)}%</span></div>`).join('');
+    };
+    const since = new Date(k.trackedSince + 'T00:00:00Z').toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' });
+    const bestTxt = k.best ? `Best day: ${new Date(k.best.date + 'T00:00:00Z').toLocaleDateString('en-GB', { day: 'numeric', month: 'short', timeZone: 'UTC' })} · ${dur(k.best.sec)}` : '';
+    window.__wakaWeeks = `<div class="cols" style="--c:var(--blue)">${wcols}</div><div class="axis thin">${waxis}</div>`; // Wochenansicht, per Umschalter
+    wakaHtml = `
+    ${card('c4', 'Coding time · all-time', 'blue', '', `<div class="hero" style="font-size:clamp(34px,6vw,44px)">${dur(k.allTimeSec)}</div><div class="sub">tracked since ${since}</div><div class="split"><span>Last 7 days</span><b>${dur(k.last7Sec)}</b></div><div class="split" style="margin-top:8px;border:0;padding-top:0"><span>Daily average</span><b>${dur(k.avgSec)}</b></div><div class="split" style="margin-top:8px;border:0;padding-top:0"><span>Weekly average</span><b>${dur(k.weekAvgSec || k.avgSec * 7)}</b></div>`, 'Total comes directly from WakaTime all-time. The weekly chart and weekly average are calculated from stored daily totals.')}<!--SPLIT-->
+    ${card('c7', 'Coding time', 'blue', `<span class="tog"><button data-wview="weeks">Weekly</button><button class="on" data-wview="days">Daily</button></span>`, `<div id="wakaChart"><div class="cols" style="--c:var(--blue)">${kcols}</div><div class="axis thin">${kaxis}</div></div>`)}<!--SPLIT-->
+    ${card('c6', 'Time by language', 'yellow', '', list(k.languages.slice(0, 5)))}
+    ${card('c6', 'Time by editor', 'purple', '', list(k.editors.slice(0, 4)))}`;
+  }
+
+    // Claude-Code-Token
+  let tokensHtml = '';
+  if (d.tokens) {
+    const t = d.tokens;
+    const tmax = Math.max(...t.daily.map((x) => x.total)), tpk = t.daily.findIndex((x) => x.total === tmax);
+    const tcols = t.daily.map((x, i) => `<div class="col" ${tip(`${x.date}: ${fmt(x.total)} tokens`)}><b class="v${i === tpk && tmax ? ' peakv' : ''}">${x.total ? tokShort(x.total) : '–'}</b><i class="${i === tpk && tmax ? 'peak' : 'gray'}" style="--h:${Math.max(6, tmax ? (x.total / tmax) * 100 : 0)}%"></i></div>`).join('');
+    const taxis = t.daily.map((x) => `<span>${Number(x.date.slice(8))}</span>`).join('');
+    const tsince = new Date(t.since + 'T00:00:00Z').toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' });
+    tokensHtml = `
+    ${card('c4', 'Claude tokens · all-time', 'purple', '', `<div class="hero" style="font-size:clamp(34px,6vw,44px)">${tokShort(t.total)}</div><div class="sub">since ${tsince} · ${fmt(t.messages)} replies</div><div class="split"><span>Output</span><b>${tokShort(t.output)}</b></div><div class="split" style="margin-top:8px;border:0;padding-top:0"><span>Input + cache write</span><b>${tokShort(t.input + t.cacheWrite)}</b></div><div class="split" style="margin-top:8px;border:0;padding-top:0"><span>Cache read</span><b>${tokShort(t.cacheRead)}</b></div><div class="split" style="margin-top:12px" data-tip="All tokens (input + output + cache) divided by the number of Claude replies"><span>Avg per reply</span><b>${tokShort(t.avgPerReply ?? t.total / Math.max(1, t.messages))}</b></div><div class="split" style="margin-top:8px;border:0;padding-top:0" data-tip="Generated (output) tokens divided by the number of Claude replies"><span>Avg output / reply</span><b>${tokShort(t.avgOutput ?? t.output / Math.max(1, t.messages))}</b></div>`, 'Claude Code usage recorded on this PC since it was first used here. Total = input + output + cache write + cache read tokens. Each device reports its own numbers; the web app and cloud sessions are not included.')}
+    ${card('c8', 'Tokens per day · last 14 days', 'purple', t.models.slice(0, 2).map((m) => esc(m.name)).join(' · ') + (t.devices && t.devices.length > 1 ? ' · ' + t.devices.length + ' devices' : ''), `<div class="cols" style="--c:var(--purple)">${tcols}</div><div class="axis thin">${taxis}</div>`)}`;
+  }
+
+  const wakaViews = d.waka ? null : null;
+  const wk = wakaHtml ? wakaHtml.split('<!--SPLIT-->') : ['', '', ''];
+  document.getElementById('app').innerHTML = `
+  <header>
+    <img class="avatar" src="https://github.com/${esc(d.login)}.png?size=96" alt="" onerror="this.style.visibility='hidden'">
+    <div class="who"><b>${esc(d.name)}</b><a href="https://github.com/${esc(d.login)}"><span>@${esc(d.login)} · joined ${d.joined}</span></a></div>
+    <div class="pills">${[['followers', d.followers], ['following', d.following], ['orgs', d.orgs], ['gists', d.gists], ['starred', d.starred]].map(([l, n]) => `<span class="pill"><b>${fmt(n)}</b> ${l}</span>`).join('')}</div>
+  </header>
+  <nav class="btns"><a class="btn primary" href="https://github.com/${esc(d.login)}">View on GitHub</a><a class="btn" href="https://github.com/${esc(d.login)}?tab=repositories">Repositories</a><a class="btn" href="https://github.com/${esc(d.login)}/${esc(d.login)}">Source code</a></nav>
+  <div class="grid">
+    ${card('c3', 'Commits · all-time', 'green', '', `<div class="hero" id="hero" data-n="${d.commitsAll}">0</div><div class="sub">${fmt(d.commitsYear)} in the last 12 months</div><div class="split"><span>Total contributions</span><b>${fmt(d.totalContribAll)}</b></div>`, 'Every commit you authored on any branch of any repo (private, org, forks), de-duplicated. Contributions = commits + PRs + issues + reviews')}
+    ${card('c5', 'Lines of code · all-time', 'pink', `net ${net >= 0 ? '+' : '−'}${short(Math.abs(net))}`,
+      `<div class="row" style="margin-bottom:14px"><span class="hero2 grow">+${short(add)}</span><span class="hero2 shrink">−${short(d.del)}</span><span class="sub">added / removed</span></div>
+       <div class="seg"><i style="flex:${d.addHuman || 1};background:var(--green)" ${tip(`Human: ${fmt(d.addHuman)} lines`)}></i><i style="flex:${d.addAI || 0.001};background:var(--purple);${d.addAI ? '' : 'display:none'}" ${tip(`AI-assisted: ${fmt(d.addAI)} lines`)}></i></div>
+       <div class="legend2"><span><em style="background:var(--green)"></em><b>Human</b> ${fmt(d.addHuman)} lines · ${Math.round(hr * 100)}%</span><span><em style="background:var(--purple)"></em><b>AI-assisted</b> ${fmt(d.addAI)} lines · ${Math.round((1 - hr) * 100)}%</span></div>
+       <div class="note">AI-assisted = commits with an AI co-author trailer (Claude, Copilot, …)</div>
+       <div class="split"><span>Processed (added + removed)</span><b>${short(add + d.del)} lines</b></div><div class="split" style="margin-top:8px;border:0;padding-top:0" data-tip="Lines that were rewritten in place: min(added, removed) per commit"><span>Refactored (rewritten in place)</span><b>${short(d.changed || 0)} lines</b></div>${d.linesAllRepos ? `<div class="split" style="margin-top:8px;border:0;padding-top:0"><span>Total in all ${d.linesAllRepos.repos} repos</span><b>${short(d.linesAllRepos.total)} lines</b></div>` : ''}`, 'All lines added and removed in your commits on every branch, no cap')}
+
+
+    ${wk[0]}
+    <section class="card c12" id="achCard" style="--c:var(--blue);display:none"></section>
+
+    ${card('c3', 'Contributions', 'green', `${fmt(mixTotal)} total`, mixHtml + `<div class="split" style="margin-top:14px" data-tip="Comments you wrote on issues, pull requests (incl. code review lines), commits, discussions and gists, across all your repos. Not part of the contribution total"><span>Comments written</span><b>${fmt(d.comments || 0)}</b></div>`, 'Commits + pull requests + issues + code reviews')}
+    ${card('c9 heatcard', `${fmt(d.contribYear)} contributions in the last year`, 'purple',
+      `<span class="legend">Less<span></span><i></i><i class="l1"></i><i class="l2"></i><i class="l3"></i><i class="l4"></i><span></span>More</span>`,
+      `${yearBtns}<div id="heatBox">${hb.html}</div>`)}
+
+    ${card('c5', 'Activity overview', 'green', 'share of all contributions', radar)}
+    ${wk[1]}
+    ${wk[2]}
+    ${tokensHtml}
+
+    ${card('c4', 'Pull requests', 'blue', '', `<div class="row"><span class="big">${fmt(d.pr.total)}</span><span class="sub">${fmt(d.pr.merged)} merged · ${pct(d.pr.merged, d.pr.total)}%</span></div><div class="track"><div class="fill" style="--w:${pct(d.pr.merged, d.pr.total)}%"></div></div>`)}
+    ${card('c4', 'Issues', 'pink', '', `<div class="row"><span class="big">${fmt(d.issues.total)}</span><span class="sub">${fmt(d.issues.closed)} closed · ${pct(d.issues.closed, d.issues.total)}%</span></div><div class="track"><div class="fill" style="--w:${pct(d.issues.closed, d.issues.total)}%"></div></div>`)}
+    ${card('c2', 'Reviews', 'purple', '', `<div class="big">${fmt(d.reviews)}</div>`)}
+    ${card('c2', 'Stars', 'yellow', '', `<div class="big">${fmt(d.stars)}</div>`)}
+
+    ${card('c3', 'Forks', 'purple', '', `<div class="big">${fmt(d.forks)}</div><div class="sub" style="margin-top:6px">${fmt(d.forksReceived)} on your repos</div>`, 'Repositories you forked (left) and forks others made of your repos')}
+    ${card('c3', 'Watchers', 'blue', '', `<div class="big">${fmt(d.watchers)}</div>`, 'People watching your own repositories')}
+    ${card('c6', 'Repositories', 'green', '', `<div class="row"><span class="big">${fmt(d.reposOwn)}</span><span class="sub">own</span><span class="big" style="margin-left:18px">${fmt(d.reposContrib)}</span><span class="sub">contributed to</span></div>`)}
+
+    ${card('c6', 'Languages · by code', 'yellow', langs[0] ? `Top: ${esc(langs[0].name)}` : '', `<div class="seg">${seg}</div><div class="legend2">${legend}</div>`)}
+
+    ${card('c6', 'Top repos by commits', 'blue', '', repos)}
+
+    ${card('c12', 'Commits per month', 'green', `<span class="mini"><span><i style="background:var(--green)"></i>Human</span><span><i style="background:var(--purple)"></i>AI</span></span>`,
+      `<div class="cols">${monthly}</div><div class="axis">${d.monthly.map((m) => `<span>${esc(m.label)}</span>`).join('')}</div>`)}
+
+    ${card('c4', 'By weekday', 'yellow', `Peak: ${DAYS[wpeak].slice(0, 3)}`, `<div class="cols" style="--c:var(--green)">${wd}</div><div class="axis">${'MTWTFSS'.split('').map((x) => `<span>${x}</span>`).join('')}</div>`)}
+    ${card('c8', 'By hour of day', 'purple', `Peak ${String(hpeak).padStart(2, '0')}:00 · ${mood}`, `<div class="cols thin">${hh}</div><div class="axis thin">${hAxis}</div>`)}
+  </div>
+  <footer>Updated ${upd} · generated automatically by GitHub Actions</footer>`;
+
+  document.addEventListener('click', (e) => {
+    const b = e.target.closest && e.target.closest('[data-year]');
+    if (!b) return;
+    const key = b.dataset.year;
+    const weeks = key === 'last' ? d.weeks : d.calendars[key];
+    const r = heatBlock(weeks, key === 'last');
+    document.getElementById('heatBox').innerHTML = r.html;
+    document.querySelectorAll('[data-year]').forEach((x) => x.classList.toggle('on', x === b));
+    document.querySelector('.heatcard .t').childNodes[1].nodeValue = fmt(r.total) + ' contributions in ' + (key === 'last' ? 'the last year' : key);
+  });
+  const hashYear = (location.hash.match(/year=(\w+)/) || [])[1]; // Deep-Link, z. B. #year=2025
+  if (hashYear) { const yb = document.querySelector('[data-year="' + hashYear + '"]'); if (yb) yb.click(); }
+
+  if (d.waka) {
+    // Ansichten des Coding-Time-Charts für den Umschalter merken
+    const box = document.getElementById('wakaChart');
+    const views = { days: box.innerHTML, weeks: window.__wakaWeeks };
+    document.addEventListener('click', (e) => {
+      const b = e.target.closest && e.target.closest('[data-wview]');
+      if (!b) return;
+      document.querySelectorAll('[data-wview]').forEach((x) => x.classList.toggle('on', x === b));
+      if (views[b.dataset.wview]) box.innerHTML = views[b.dataset.wview];
+      else {
+        const k = d.waka, dmax = Math.max(...k.daily.map((x) => x.sec)), dpk = k.daily.findIndex((x) => x.sec === dmax);
+        const h = (sec) => Math.floor(sec / 3600) + 'h ' + String(Math.round((sec % 3600) / 60)).padStart(2, '0') + 'm';
+        box.innerHTML = '<div class="cols" style="--c:var(--blue)">' + k.daily.map((x, i) => '<div class="col" data-tip="' + x.date + ': ' + h(x.sec) + '"><b class="v' + (i === dpk && dmax ? ' peakv' : '') + '">' + (x.sec ? (x.sec / 3600).toFixed(1) + 'h' : '–') + '</b><i class="' + (i === dpk && dmax ? 'peak' : 'gray') + '" style="--h:' + Math.max(6, dmax ? (x.sec / dmax) * 100 : 0) + '%"></i></div>').join('') + '</div><div class="axis thin">' + k.daily.map((x) => '<span>' + Number(x.date.slice(8)) + '</span>').join('') + '</div>';
+      }
+      requestAnimationFrame(() => requestAnimationFrame(() => document.body.classList.add('in')));
+    });
+  }
+
+  loadAchievements();
+
+  // Animationen: Balken einblenden, Hauptzahl hochzählen
+  requestAnimationFrame(() => requestAnimationFrame(() => document.body.classList.add('in')));
+  const hero = document.getElementById('hero'), target = Number(hero.dataset.n), t0 = performance.now();
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const tick = (t) => {
+    const p = reduce ? 1 : Math.min(1, (t - t0) / 1200);
+    hero.textContent = fmt(target * (1 - Math.pow(1 - p, 3)));
+    if (p < 1) requestAnimationFrame(tick);
+  };
+  requestAnimationFrame(tick);
+}
+
+// Tooltip
+const tipEl = document.getElementById('tip');
+document.addEventListener('mousemove', (e) => {
+  const el = e.target.closest && e.target.closest('[data-tip]');
+  if (!el) { tipEl.style.opacity = 0; return; }
+  tipEl.textContent = el.dataset.tip;
+  tipEl.style.opacity = 1;
+  const w = tipEl.offsetWidth;
+  tipEl.style.left = Math.min(innerWidth - w - 8, e.clientX + 14) + 'px';
+  tipEl.style.top = e.clientY + 16 + 'px';
+});
+
+// Achievements: gleiche Oberfläche wie die Seite der Action (achievements-ui.js + achievements.json)
+function loadAchievements() {
+  const box = document.getElementById('achCard');
+  fetch('achievements.json?' + Date.now(), { cache: 'no-store' }).then((r) => { if (!r.ok) throw 0; return r.json(); }).then((j) => {
+    const get = (f) => fetch(f + '?' + Date.now(), { cache: 'no-store' }).then((r) => (r.ok ? r.json() : null)).catch(() => null);
+    return Promise.all([get('road.json'), get('road-state.json')]).then(([road, roadState]) => ({ j, road, roadState }));
+  }).then(({ j, road, roadState }) => {
+    const sc = document.createElement('script');
+    sc.src = 'achievements-ui.js?' + encodeURIComponent(j.updated);
+    sc.onload = () => {
+      // startet mit Highlights; #achievements=tree bzw. #achievements=road öffnet direkt die jeweilige Ansicht
+      const m = location.hash.match(/achievements(?:=(\w+))?/), want = !!m;
+      AchUI.mount(box, j, { road, roadState, view: m && ['tree', 'road'].includes(m[1]) ? m[1] : 'highlights' });
+      box.style.display = '';
+      if (want) setTimeout(() => box.scrollIntoView({ behavior: 'smooth', block: 'start' }), 300);
+    };
+    document.head.appendChild(sc);
+  }).catch(() => {});
+}
+
+// Veraltete Seite erkennen: GitHub Pages erlaubt 10 Minuten Browser-Cache für index.html. Weicht der Stand auf dem Server ab, einmal neu laden.
+function checkPageVersion() {
+  fetch(location.pathname, { cache: 'no-store', method: 'HEAD' }).then((r) => {
+    const lm = r.headers.get('last-modified'); if (!lm || !document.lastModified) return;
+    if (new Date(lm).getTime() - new Date(document.lastModified).getTime() > 1000) {
+      let n = 0; try { n = +sessionStorage.getItem('pgReload') || 0; sessionStorage.setItem('pgReload', n + 1); } catch {}
+      if (n < 2) location.reload();
+    }
+  }).catch(() => {});
+}
+
+// Neue Daten erkennen: beim Zurückkehren auf den Tab und alle 10 Minuten nachsehen, bei neuem Stand neu laden
+function watchForUpdates(loaded) {
+  const check = () => fetch('stats.json?' + Date.now(), { cache: 'no-store' })
+    .then((r) => r.json())
+    .then((j) => { if (String(j.updated) !== String(loaded)) location.reload(); })
+    .catch(() => {});
+  setInterval(check, 10 * 60 * 1000);
+  document.addEventListener('visibilitychange', () => { if (!document.hidden) check(); });
+}
+
+// Anmeldung des Owners: Die Seite ist statisch und kennt dein GitHub-Konto nicht. "Sign in with GitHub" (OAuth) bestätigt auf jedem Gerät, wer du bist;
+// ein kleiner Worker (worker/oauth.js) tauscht den Code gegen den Login-Namen und gibt nur diesen zurück. Einrichtung: SETUP-LOGIN.md.
+// Solange hier nichts eingetragen ist, gilt der alte Weg (einmal mit #settings öffnen, merkt sich der Browser).
+const AUTH = { clientId: '', worker: '' };
+
+// Theme & look: schmale Leiste über die volle Breite, nur für den Owner.
+// Speichern ohne Token: "Save & rebuild" öffnet ein vorausgefülltes GitHub-Issue, der Workflow apply-theme.yml übernimmt es nur vom Owner.
+async function themeConfig() {
+  const grid = document.querySelector('.grid'); if (!grid) return;
+  const ls = (k, v) => { try { return v === undefined ? localStorage.getItem(k) : v === null ? localStorage.removeItem(k) : localStorage.setItem(k, v); } catch { return null; } };
+  const ss = (k, v) => { try { return v === undefined ? sessionStorage.getItem(k) : v === null ? sessionStorage.removeItem(k) : sessionStorage.setItem(k, v); } catch { return null; } };
+  ls('cfgTok', null); ls('cfgRepo', null); // früher hier gespeicherter Token wird entfernt
+  const host = location.hostname, owner = host.endsWith('.github.io') ? host.split('.')[0] : '';
+  const repo = owner ? owner + '/' + (location.pathname.split('/')[1] || host) : '';
+  const viaLogin = !!(AUTH.clientId && AUTH.worker);
+  let isOwner;
+  if (viaLogin) {
+    const q = new URLSearchParams(location.search), code = q.get('code');
+    if (code && q.get('state') && q.get('state') === ss('tlState')) {
+      ss('tlState', null);
+      history.replaceState(null, '', location.pathname + location.hash);
+      try {
+        const r = await fetch(AUTH.worker + '/token', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ code }) });
+        const j = await r.json(); if (j.login) ls('tlUser', j.login);
+      } catch {}
+    }
+    isOwner = String(ls('tlUser') || '').toLowerCase() === owner.toLowerCase();
+    const signIn = () => {
+      const st = (crypto.randomUUID ? crypto.randomUUID() : String(Math.random())).replace(/\W/g, ''); ss('tlState', st); ss('tlTried', '1');
+      location.href = 'https://github.com/login/oauth/authorize?' + new URLSearchParams({ client_id: AUTH.clientId, redirect_uri: location.origin + location.pathname, state: st });
+    };
+    if (!isOwner) {
+      // #settings öffnet direkt die Anmeldung (als Lesezeichen auf jedem Gerät nutzbar), sonst nur ein unauffälliger Link in der Fußzeile
+      const f = document.querySelector('footer');
+      if (f) { f.insertAdjacentHTML('beforeend', ' · <a href="#settings" id="tlSignIn" style="color:inherit">Owner sign-in</a>'); f.querySelector('#tlSignIn').onclick = (e) => { e.preventDefault(); signIn(); }; }
+      if (/(^|[#?&])settings\b/.test(location.hash + location.search) && !ss('tlTried')) signIn();
+      return;
+    }
+    ss('tlTried', null);
+  } else {
+    if (/(^|[#?&])settings\b/.test(location.hash + location.search)) ls('tlOwner', '1');
+    isOwner = ls('tlOwner') === '1';
+  }
+  if (!isOwner) return;
+  if (viaLogin) ls('tlOwner', null); // alter Geräte-Merker wird mit der Anmeldung überflüssig
+
+  // Registry der Zusatz-Themes (Regler stehen in themes/index.mjs) und die gemeinsamen Regeln aus theme.mjs
+  let THEMES, normalizeTheme;
+  try { ({ THEMES } = await import('./themes/index.mjs')); ({ normalizeTheme } = await import('./theme.mjs')); } catch { return; }
+  const ACC = { roses: '#7db8ff', snow: '#dff1ff', sakura: '#ff9ac8', rain: '#9fc8ff', night: '#b794ff' };
+  const OV = [['butterflies', 'Butterflies', '#ff5c9a'], ['autumn', 'Autumn', '#ff9f5a'], ...THEMES.map((t) => [t.id, t.label, ACC[t.id] || '#ff9f5a'])];
+  const RINGS = [['classic', 'Classic'], ['orbit', 'Orbit'], ['rank', 'Rank'], ['rarity', 'Rarity']];
+  const DENS = ['Sparse', 'Light', 'Normal', 'Dense', 'Storm'];
+  const norm = (j) => normalizeTheme(j);
+  let cfg = norm(), saved = null, poll = null;
+  const json = () => JSON.stringify(normalizeTheme(cfg), null, 2) + '\n';
+  const has = (o) => cfg.overlays.includes(o);
+  const ORDER = ['rain', 'night', 'snow', 'sakura', 'roses']; // wie in generate.mjs: Stimmung zuerst, Dekor darüber
+  const extras = () => THEMES.filter((t) => has(t.id)).sort((a, b) => ORDER.indexOf(a.id) - ORDER.indexOf(b.id));
+  // Optionen eines Zusatz-Themes (fehlende Werte aus den Standardwerten); bleiben im Speicher, auch wenn das Overlay zwischendurch aus ist
+  // dasselbe Objekt bei jedem Aufruf zurückgeben, sonst gehen Schreibzugriffe wie opts(t)[k] = !opts(t)[k] verloren
+  const opts = (t) => {
+    cfg.options = cfg.options || {};
+    const o = cfg.options[t.id] = cfg.options[t.id] || {};
+    for (const k in t.defaults) if (o[k] === undefined) o[k] = t.defaults[k];
+    return o;
+  };
+  const fmt = (c, v) => (c.scale ? Math.round(v * c.scale) : v) + (c.unit || '');
+
+  // Pixel-Sprites (gleiche Farben wie im Bild)
+  const SPR = {
+    maple: ['.....r.....', '....rrr....', '.r..ror..r.', '.rr.ror.rr.', 'rrrrroorrrr', '.rrrrorrrr.', '..rrroorr..', '.rrrrorrrr.', '....ror....', '.....s.....', '.....s.....'],
+    oak: ['...r...', '..rrr..', '.rrorr.', '.rrorr.', 'rrrorrr', '.rrorr.', '.rrorr.', '..ror..', '...s...', '...s...'],
+    fly: ['.pppp.....pppp.', 'pppppp.d.pppppp', 'ppppwppdppwpppp', 'pppppppdppppppp', '.ppppppdpppppp.', '..pppppdppppp..', '.ppppppdpppppp.', 'pppppppdppppppp', '.ppp.pp.pp.ppp.'],
+  };
+  const LEAF = [{ r: '#e0562b', o: '#a82a22', s: '#6b4220' }, { r: '#f29a1f', o: '#c2491b', s: '#6b4220' }, { r: '#f2d24b', o: '#e69a28', s: '#6b4220' }, { r: '#b3263a', o: '#7e1a2a', s: '#5e3d17' }];
+  const FLY = ['#ff5c9a', '#38bdf8', '#ff9f43', '#b794ff'];
+  const pix = (rows, pal, s) => {
+    let r = '';
+    rows.forEach((row, y) => [...row].forEach((ch, x) => { if (ch !== '.') r += `<rect x="${x}" y="${y}" width="1.04" height="1.04" fill="${pal[ch]}"/>`; }));
+    return `<svg viewBox="0 0 ${rows[0].length} ${rows.length}" width="${(rows[0].length * s).toFixed(1)}" height="${(rows.length * s).toFixed(1)}" shape-rendering="crispEdges">${r}</svg>`;
+  };
+  const leaf = (i, s) => pix(i % 3 === 2 ? SPR.oak : SPR.maple, LEAF[i % LEAF.length], s);
+  const fly = (s, i = 0) => pix(SPR.fly, { p: FLY[i % FLY.length], w: '#fff', d: '#241533' }, s);
+  const ICON = {
+    none: '<svg width="30" height="30" viewBox="0 0 30 30"><circle cx="15" cy="15" r="11" fill="none" stroke="#4a4a4a" stroke-width="2.2" stroke-dasharray="3 3.5"/></svg>',
+    butterflies: fly(2.1), autumn: leaf(0, 2.6),
+    snow: '<svg width="30" height="30" viewBox="0 0 30 30" fill="none" stroke="#dff1ff" stroke-width="2" stroke-linecap="round"><path d="M15 3v24M4.6 9l20.8 12M4.6 21L25.4 9M12 5l3 3 3-3M12 25l3-3 3 3"/></svg>',
+    sakura: '<svg width="30" height="30" viewBox="0 0 30 30"><g fill="#ff9ac8" stroke="#c4568f" stroke-width="1">' + [0, 72, 144, 216, 288].map((a) => `<ellipse cx="15" cy="8.5" rx="4.6" ry="6.4" transform="rotate(${a} 15 15)"/>`).join('') + '</g><circle cx="15" cy="15" r="2.6" fill="#ffe27a"/></svg>',
+    rain: '<svg width="30" height="30" viewBox="0 0 30 30" fill="none" stroke="#9fc8ff" stroke-width="2.4" stroke-linecap="round"><path d="M9 6l-3 9M17 4l-3 10M24 8l-3 9M13 19l-3 8M22 21l-3 7"/></svg>',
+    night: '<svg width="30" height="30" viewBox="0 0 30 30"><path d="M21 4.5A11 11 0 1 0 25.5 21 9 9 0 0 1 21 4.5z" fill="#b794ff"/><circle cx="23" cy="9" r="1.3" fill="#fff"/><circle cx="27" cy="15" r="1" fill="#fff"/></svg>',
+    roses: '<svg width="30" height="30" viewBox="0 0 30 30" fill="none" stroke="#7db8ff" stroke-width="2"><circle cx="15" cy="15" r="11"/><circle cx="15" cy="15" r="6.5"/><circle cx="15" cy="15" r="2.2" fill="#7db8ff"/></svg>',
+  };
+
+  const sec = document.createElement('section');
+  sec.className = 'card c12 tlcard'; sec.style.setProperty('--c', '#ff9f5a');
+  sec.innerHTML = `<div class="tl" id="tl">
+    <div class="bar">
+      <div class="t">Theme &amp; look</div>
+      <div class="sum" id="tlSum"></div>
+      <span class="st" id="tlSt"></span>
+      <button class="btn" id="tlOpen" aria-expanded="false"></button>
+    </div>
+    <div class="body">
+      <div>
+        <div class="lbl">Overlay theme</div>
+        <div class="ov"><button data-ov="none" style="--ac:#8a8a8a"><span class="ic">${ICON.none}</span>None</button>${OV.map(([v, l, c]) => `<button data-ov="${v}" style="--ac:${c}"><span class="ic">${ICON[v]}</span>${l}</button>`).join('')}</div>
+        <div class="hint">Pick one or combine several.</div>
+        <div class="lbl">Ring design</div>
+        <div class="rings">${RINGS.map(([v, l]) => `<button data-ring="${v}">${l}</button>`).join('')}</div>
+      </div>
+      <div>
+        <div class="lbl">Details</div>
+        <div class="drow" data-need="dens"><span title="Applies to Autumn and Butterflies">Density</span><div class="dens"><span id="tlDv"></span><input type="range" id="tlD" min="1" max="5" step="1" aria-label="Density"></div></div>
+        <div class="drow" data-need="autumn"><span>Leaves settle on the cards</span><button class="sw" data-k="piles" aria-label="Leaves settle on the cards"></button></div>
+        <div class="drow" data-need="autumn"><span>Wind gusts blow them away</span><button class="sw" data-k="wind" aria-label="Wind gusts"></button></div>
+        <div class="drow" data-need="any"><span>Pause when "reduce motion" is on</span><button class="sw" data-k="reduceMotion" aria-label="Pause when reduce motion is on"></button></div>
+      </div>
+      <div>
+        <div class="pv" id="tlPv"></div>
+        <div class="acts"><button class="btn primary" id="cSave">Save &amp; rebuild</button><button class="btn" id="cCopy">Copy JSON</button></div>
+        <div class="msg" id="cMsg"></div>
+        <div class="foot"><span>Saved through a GitHub issue · only @${esc(owner || 'owner')} is applied</span><button id="tlHide">${viaLogin ? 'Sign out' : 'Hide on this device'}</button></div>
+      </div>
+      <div class="xtra" id="tlX"></div>
+    </div>
+  </div>`;
+  grid.prepend(sec); // direkt unter dem Header
+  const $ = (id) => sec.querySelector('#' + id), tl = $('tl');
+
+  // Vorschau: Mini-Kartenkante mit allen gewählten Overlays (CSS-Animation, deterministisch)
+  const preview = () => {
+    const pv = $('tlPv'), W = pv.clientWidth || 360, d = cfg.density - 1;
+    let s = 7; const rnd = () => ((s = (s * 16807) % 2147483647) / 2147483647);
+    let h = '<div class="edge"></div>';
+    if (has('autumn')) {
+      for (let i = 0, n = [2, 3, 4, 6, 8][d]; i < n; i++) {
+        const x0 = rnd() * (W - 50), dur = 5 + rnd() * 4;
+        h += `<div class="it fl" style="--x0:${x0.toFixed(0)}px;--x1:${(x0 + 30 + rnd() * 60).toFixed(0)}px;--y1:${cfg.piles ? 70 : 140}px;animation-duration:${dur.toFixed(1)}s;animation-delay:${(-rnd() * dur).toFixed(1)}s"><div class="sway" style="animation-duration:${(1.1 + rnd() * 0.9).toFixed(1)}s">${leaf(i, 2.3 + rnd() * 0.8)}</div></div>`;
+      }
+      if (cfg.piles) {
+        // lockerer Blätterteppich über die ganze Kante, mit Lücken; Böen fegen ihn von links nach rechts weg
+        const gap = [30, 22, 16, 12, 9][d];
+        let p = '';
+        for (let x = 8 + rnd() * gap, j = 0; x < W - 20; j++) {
+          p += `<span${cfg.wind ? ' class="gust"' : ''} style="left:${x.toFixed(0)}px;bottom:${(rnd() * 3).toFixed(0)}px;animation-delay:${((x / W) * 0.8).toFixed(2)}s"><i style="transform:rotate(${(rnd() * 360 - 180).toFixed(0)}deg) scaleY(.45)">${leaf(j + 1, 2.3)}</i></span>`;
+          x += rnd() < 0.22 ? gap * (1.8 + rnd() * 1.7) : gap * (0.4 + rnd() * 0.7);
+        }
+        h += `<div class="pile">${p}</div>`;
+      }
+    }
+    if (has('butterflies')) {
+      for (let i = 0, n = [1, 1, 2, 3, 3][d]; i < n; i++) {
+        const dur = 9 + rnd() * 5;
+        h += `<div class="it bf" style="--x0:-40px;--xl:${(W * (0.15 + 0.7 * rnd())).toFixed(0)}px;--x1:${W + 40}px;animation-duration:${dur.toFixed(1)}s;animation-delay:${(-rnd() * dur).toFixed(1)}s"><div class="flap">${fly(2.3, i)}</div></div>`;
+      }
+    }
+    const ex = extras();
+    if (ex.length) { // die echten Theme-Layer auf einer Mini-Kartenkante
+      const H = 124, cards = [{ x: 0, y: H - 38, w: W, h: 200 }];
+      h += `<svg class="x" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none">${ex.map((t) => t.render(W, H, cards, opts(t))).join('')}</svg>`;
+    }
+    if (!cfg.overlays.length) h += '<div class="none">No overlay, just the cards</div>';
+    pv.innerHTML = h;
+    pv.classList.toggle('rm', cfg.reduceMotion);
+  };
+
+  const buildExtra = () => {
+    $('tlX').innerHTML = extras().map((t) => `<div style="--ac:${ACC[t.id] || '#ff9f5a'}"><div class="lbl">${esc(t.label)}</div>${t.controls.map((c, i) => {
+      const at = `data-xt="${t.id}" data-xi="${i}"`;
+      if (c.type === 'range') return `<div class="drow"><span>${esc(c.label)}</span><div class="dens"><span data-xv="${t.id}.${i}"></span><input type="range" ${at} min="${c.min}" max="${c.max}" step="${c.step || 1}" aria-label="${esc(c.label)}"></div></div>`;
+      if (c.type === 'toggle') return `<div class="drow"><span>${esc(c.label)}</span><button class="sw" ${at} aria-label="${esc(c.label)}"></button></div>`;
+      return `<div class="drow"><span>${esc(c.label)} <i class="hx" data-xv="${t.id}.${i}"></i></span><div class="cs" ${at}>${c.colors.map((k) => `<button data-c="${k}" style="background:${k}" title="${k}" aria-label="${k}"></button>`).join('')}<input type="color" title="Custom colour" aria-label="Custom colour"></div></div>`;
+    }).join('')}</div>`).join('');
+  };
+  const paintExtra = () => extras().forEach((t) => {
+    const o = opts(t);
+    t.controls.forEach((c, i) => {
+      const sel = `[data-xt="${t.id}"][data-xi="${i}"]`, v = o[c.key];
+      if (c.type === 'range') {
+        const el = sec.querySelector('input' + sel), l = sec.querySelector(`[data-xv="${t.id}.${i}"]`);
+        el.value = c.scale ? Math.round(v * c.scale) : v; el.style.setProperty('--p', ((el.value - c.min) / (c.max - c.min)) * 100 + '%'); l.textContent = fmt(c, v);
+      } else if (c.type === 'toggle') {
+        const b = sec.querySelector('.sw' + sel); b.classList.toggle('on', !!v); b.setAttribute('aria-pressed', !!v);
+      } else {
+        const w = sec.querySelector('.cs' + sel);
+        const bs = [...w.querySelectorAll('button')], hit = bs.some((b) => b.dataset.c.toLowerCase() === String(v).toLowerCase());
+        bs.forEach((b) => b.classList.toggle('on', b.dataset.c.toLowerCase() === String(v).toLowerCase()));
+        const ci = w.querySelector('input'); ci.value = v; ci.classList.toggle('on', !hit);
+        sec.querySelector(`[data-xv="${t.id}.${i}"]`).textContent = String(v).toUpperCase();
+      }
+    });
+  });
+
+  let lastPv = '', lastOv = null;
+  const paint = () => {
+    const open = tl.classList.contains('open');
+    sec.querySelectorAll('[data-ov]').forEach((b) => b.classList.toggle('on', b.dataset.ov === 'none' ? !cfg.overlays.length : has(b.dataset.ov)));
+    sec.querySelectorAll('[data-ring]').forEach((b) => b.classList.toggle('on', b.dataset.ring === cfg.ring));
+    sec.querySelectorAll('.sw[data-k]').forEach((b) => { b.classList.toggle('on', !!cfg[b.dataset.k]); b.setAttribute('aria-pressed', !!cfg[b.dataset.k]); });
+    sec.querySelectorAll('[data-need]').forEach((r) => r.classList.toggle('off', { autumn: !has('autumn'), dens: !has('autumn') && !has('butterflies'), any: !cfg.overlays.length }[r.dataset.need]));
+    const ovKey = cfg.overlays.join();
+    if (ovKey !== lastOv) { lastOv = ovKey; buildExtra(); }
+    paintExtra();
+    const rg = $('tlD'); rg.value = cfg.density; rg.style.setProperty('--p', ((cfg.density - 1) / 4) * 100 + '%');
+    $('tlDv').textContent = DENS[cfg.density - 1];
+    const names = cfg.overlays.map((o) => OV.find((x) => x[0] === o)[1]);
+    $('tlSum').innerHTML = [names.length ? names.join(' + ') : 'No overlay', RINGS.find((r) => r[0] === cfg.ring)[1] + ' rings', ...(has('autumn') || has('butterflies') ? [DENS[cfg.density - 1]] : [])].map((x) => `<span>${esc(x)}</span>`).join('');
+    $('tlSt').textContent = saved === null ? '' : poll ? 'waiting for GitHub…' : json() === saved ? 'saved' : 'unsaved changes';
+    $('tlOpen').textContent = open ? 'Close ▴' : 'Customize ▾';
+    $('tlOpen').setAttribute('aria-expanded', open);
+    const key = [open, cfg.overlays, cfg.density, cfg.piles, cfg.wind, cfg.reduceMotion, JSON.stringify(extras().map(opts))].join();
+    if (open && key !== lastPv) { lastPv = key; preview(); }
+  };
+  const msg = (t, bad) => { const m = $('cMsg'); m.textContent = t; m.style.color = bad ? 'var(--pink)' : 'var(--mute)'; };
+
+  sec.addEventListener('click', (e) => {
+    const b = e.target.closest('button'); if (!b) return;
+    if (b.id === 'tlOpen') tl.classList.toggle('open');
+    else if (b.id === 'tlHide') { ls('tlOwner', null); ls('tlUser', null); sec.remove(); return; }
+    else if (b.dataset.ov === 'none') cfg.overlays = [];
+    else if (b.dataset.ov) cfg.overlays = OV.map((o) => o[0]).filter((o) => (o === b.dataset.ov ? !has(o) : has(o)));
+    else if (b.dataset.ring) cfg.ring = b.dataset.ring;
+    else if (b.dataset.k) cfg[b.dataset.k] = !cfg[b.dataset.k];
+    else if (b.dataset.xt || b.dataset.c) {
+      const host = b.dataset.xt ? b : b.closest('.cs'), t = THEMES.find((x) => x.id === host.dataset.xt), c = t.controls[+host.dataset.xi];
+      opts(t)[c.key] = b.dataset.c ? b.dataset.c : !opts(t)[c.key];
+    }
+    else return;
+    if (b.id !== 'tlOpen') msg('');
+    paint();
+  });
+  sec.addEventListener('input', (e) => {
+    const el = e.target, host = el.dataset.xt ? el : el.closest('.cs'); if (!host || !host.dataset.xt) return;
+    const t = THEMES.find((x) => x.id === host.dataset.xt), c = t.controls[+host.dataset.xi];
+    opts(t)[c.key] = c.type === 'range' ? (c.scale ? +el.value / c.scale : +el.value) : el.value;
+    msg(''); paint();
+  });
+  $('tlD').addEventListener('input', (e) => { cfg.density = +e.target.value; paint(); });
+  $('cCopy').onclick = () => navigator.clipboard.writeText(json()).then(() => msg('Copied. Paste it into theme.json and commit.'), () => msg('Copy failed', 1));
+
+  // Prüft theme.json, bis die Seite die neuen Einstellungen ausliefert (Workflow + Pages brauchen 1–3 Minuten)
+  const loadTheme = () => fetch('theme.json?' + Date.now(), { cache: 'no-store' }).then((r) => (r.ok ? r.json() : null));
+  $('cSave').onclick = () => {
+    if (!repo) return msg('Repository not detected on this host, use Copy JSON instead.', 1);
+    const want = json();
+    const body = 'Theme settings from the dashboard. Click **Create** to apply them, the workflow then rebuilds stats.svg and closes this issue.\n\n```json\n' + want + '```\n';
+    window.open(`https://github.com/${repo}/issues/new?title=${encodeURIComponent('theme: update')}&body=${encodeURIComponent(body)}`, '_blank', 'noopener');
+    msg('GitHub opened in a new tab. Click "Create" there; the change is applied within a few minutes.');
+    clearInterval(poll);
+    const t0 = Date.now();
+    poll = setInterval(() => loadTheme().then((j) => {
+      if (j && JSON.stringify(norm(j), null, 2) + '\n' === want) { clearInterval(poll); poll = null; saved = want; msg('Applied. stats.svg is being rebuilt.'); paint(); }
+      else if (Date.now() - t0 > 10 * 60e3) { clearInterval(poll); poll = null; msg('Not applied yet. Check the issue on GitHub.', 1); paint(); }
+    }).catch(() => {}), 15000);
+    paint();
+  };
+  loadTheme().then((j) => { if (j) { cfg = norm(j); saved = json(); } }).catch(() => {}).finally(paint);
+}
+
+fetch('stats.json?' + Date.now(), { cache: 'no-store' })
+  .then((r) => { if (!r.ok) throw new Error(r.status); return r.json(); })
+  .then((d) => { render(d); themeConfig(); watchForUpdates(d.updated); checkPageVersion(); })
+  .catch((e) => { document.getElementById('err').textContent = 'Could not load stats.json (' + e.message + ')'; });
+</script>
+</body>
+</html>

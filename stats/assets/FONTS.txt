@@ -1,0 +1,2 @@
+space-grotesk.woff2: Space Grotesk (latin subset, variable 400–700) by Florian Karsten,
+SIL Open Font License 1.1, https://github.com/floriankarsten/space-grotesk

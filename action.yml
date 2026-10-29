@@ -1,22 +1,26 @@
-name: GitHub Achievements by niounze
-description: Custom, self-updating achievements for your GitHub profile (SVG cards + JSON).
+name: GitHub Stats & Achievements
+description: Modular, self-updating GitHub profile kit. Stats card, achievements, interactive dashboard and Master Road. Pick the components you want.
 author: niounze
 inputs:
   token:
-    description: GitHub token with read access (a PAT with repo scope also counts private repos)
+    description: GitHub token with read access (a PAT with repo and read:org scope also counts private repos)
     required: true
   login:
     description: GitHub username to evaluate (default is the repo owner)
     required: false
     default: ''
-  wakatime-key:
-    description: Optional WakaTime API key or OAuth token (enables Coding Time, Marathon, Consistent)
+  components:
+    description: 'Comma separated list of components: stats, achievements, dashboard, road'
     required: false
-    default: ''
+    default: 'stats,achievements'
   output-dir:
-    description: Folder in your repo for the generated files
+    description: Folder in your repo for the generated files and your own config files (theme.json, intro.json, ...)
     required: false
     default: '.'
+  wakatime-key:
+    description: Optional WakaTime API key or OAuth token (enables Coding Time, Marathon, Consistent and the coding-time card)
+    required: false
+    default: ''
   gitlab-sources:
     description: 'Optional JSON, e.g. [{"host":"https://gitlab.com","token":"..."}]. Only commits authored by you (gitlab-author-emails) are counted.'
     required: false
@@ -25,13 +29,29 @@ inputs:
     description: Comma separated commit e-mail addresses of yours on GitLab
     required: false
     default: ''
+  timezone:
+    description: Time zone used for night/early/weekend statistics (IANA name, for example Europe/Berlin)
+    required: false
+    default: ''
+  dashboard-auth-client-id:
+    description: Optional. OAuth app client id for the owner login of the dashboard (see docs/SETUP-LOGIN.md)
+    required: false
+    default: ''
+  dashboard-auth-worker:
+    description: Optional. URL of the login worker for the dashboard owner login
+    required: false
+    default: ''
+  commit:
+    description: 'Set to "true" to commit and push the generated files (needs contents: write and a checkout before this step)'
+    required: false
+    default: 'false'
 runs:
   using: composite
   steps:
     - uses: actions/setup-node@v4
       with:
         node-version: 20
-    - name: Generate achievements
+    - name: Generate components
       shell: bash
       env:
         STATS_TOKEN: ${{ inputs.token }}
@@ -39,4 +59,21 @@ runs:
         WAKATIME_API_KEY: ${{ inputs.wakatime-key }}
         GITLAB_SOURCES: ${{ inputs.gitlab-sources }}
         GITLAB_AUTHOR_EMAILS: ${{ inputs.gitlab-author-emails }}
-      run: node "${{ github.action_path }}/achievements.mjs" --out "${{ inputs.output-dir }}"
+        COMPONENTS: ${{ inputs.components }}
+        DASHBOARD_AUTH_CLIENT_ID: ${{ inputs.dashboard-auth-client-id }}
+        DASHBOARD_AUTH_WORKER: ${{ inputs.dashboard-auth-worker }}
+        INPUT_TIMEZONE: ${{ inputs.timezone }}
+      run: |
+        if [ -n "$INPUT_TIMEZONE" ]; then export ACH_TZ="$INPUT_TIMEZONE" STATS_TZ="$INPUT_TIMEZONE"; fi
+        node "${{ github.action_path }}/run.mjs" --out "${{ inputs.output-dir }}"
+    - name: Commit generated files
+      if: inputs.commit == 'true'
+      shell: bash
+      env:
+        OUT_DIR: ${{ inputs.output-dir }}
+      run: |
+        git config user.name "github-actions[bot]"
+        git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+        git add -A -- "$OUT_DIR"
+        # in conflicts the freshly generated files win (-X theirs = our commit during the rebase)
+        git diff --cached --quiet || (git commit -m "chore: update stats and achievements" && git pull --rebase -X theirs && git push)
