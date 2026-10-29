@@ -552,6 +552,11 @@ async function themeConfig() {
   } else {
     if (/(^|[#?&])settings\b/.test(location.hash + location.search)) ls('tlOwner', '1');
     isOwner = ls('tlOwner') === '1';
+    if (!isOwner) {
+      // without the OAuth login there is still a way in: one click marks this browser as owner (applying a change is only ever done for the repo owner, see apply-theme.yml)
+      const f = document.querySelector('footer');
+      if (f) { f.insertAdjacentHTML('beforeend', ' � <a href="#settings" id="tlOpenLink" style="color:inherit">Customize</a>'); f.querySelector('#tlOpenLink').onclick = (e) => { e.preventDefault(); ls('tlOwner', '1'); location.reload(); }; }
+    }
   }
   if (!isOwner) return;
   if (viaLogin) ls('tlOwner', null); // alter Ger채te-Merker wird mit der Anmeldung 체berfl체ssig

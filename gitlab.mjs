@@ -9,6 +9,8 @@
 // parent count so the callers can leave them out of line statistics, exactly like the GitHub commits.
 // What never happens: no project names, no commit messages and no tokens are logged; the token is only ever sent to the
 // configured host (redirects are not followed, so it cannot leak to another host).
+import { adjustWith, countCall } from './lines.mjs';
+
 const MAX_PAGES = Number(process.env.GITLAB_MAX_PAGES || 50);
 
 function parseSources() {
@@ -33,6 +35,22 @@ async function get(host, token, path) {
     } catch (e) { if (!/^HTTP (429|5)/.test(e.message) && !/fetch failed/.test(e.message)) throw e; last = e; }
   }
   throw last;
+}
+
+// file list of a large commit with line counts (GitLab only gives the diff text), so generated and vendored files can be left out
+async function diffFiles(host, token, projectId, sha) {
+  const files = [];
+  for (let page = '1', n = 0; page && n < 30; n++) {
+    countCall();
+    const r = await get(host, token, `/projects/${projectId}/repository/commits/${sha}/diff?per_page=100&page=${page}`);
+    for (const f of r.json) {
+      let additions = 0, deletions = 0;
+      for (const line of String(f.diff || '').split(String.fromCharCode(10))) { if (line[0] === '+' && !line.startsWith('+++')) additions++; else if (line[0] === '-' && !line.startsWith('---')) deletions++; }
+      files.push({ path: f.new_path || f.old_path, additions, deletions });
+    }
+    page = r.next;
+  }
+  return files;
 }
 
 export async function collectGitLabCommits() {
@@ -61,7 +79,8 @@ export async function collectGitLabCommits() {
                 if (seen.has(x.id)) continue;
                 seen.add(x.id);
                 commits++;
-                out.push({ oid: x.id, committedDate: x.committed_date, additions: x.stats?.additions || 0, deletions: x.stats?.deletions || 0, message: x.message || '', parents: { totalCount: (x.parent_ids || []).length } });
+                const commit = { oid: x.id, committedDate: x.committed_date, additions: x.stats?.additions || 0, deletions: x.stats?.deletions || 0, message: x.message || '', parents: { totalCount: (x.parent_ids || []).length } };
+                out.push(await adjustWith(commit, () => diffFiles(host, token, p.id, x.id)));
               }
               cp = c.next;
             }

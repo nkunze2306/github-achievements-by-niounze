@@ -9,6 +9,7 @@ import { THEMES } from './themes/index.mjs';
 import { SAKURA_DEFAULTS } from './themes/sakura.mjs';
 import { normalizeTheme } from './theme.mjs';
 import { collectGitLabCommits } from '../gitlab.mjs';
+import { adjustCommit, flushLines } from '../lines.mjs';
 
 const TOKEN = (process.env.STATS_TOKEN || process.env.GITHUB_TOKEN || '').trim() || undefined;
 const LOGIN = process.env.STATS_LOGIN || process.env.GITHUB_REPOSITORY_OWNER;
@@ -168,7 +169,7 @@ async function fetchData() {
             { owner, name, ref: `refs/heads/${br}`, id: u.id, after },
           )).repository?.ref?.target?.history;
           if (!h) break;
-          for (const c of h.nodes) addCommit(c, r.nameWithOwner);
+          for (const c of h.nodes) addCommit(await adjustCommit(c, r.nameWithOwner), r.nameWithOwner);
           if (!h.pageInfo.hasNextPage) break;
           after = h.pageInfo.endCursor;
         }
@@ -185,6 +186,7 @@ async function fetchData() {
   const contribYear = weeks.flat().reduce((s, d) => s + d.count, 0);
   // optional GitLab: nur Commits, die du selbst verfasst hast (siehe gitlab.mjs)
   for (const c of await collectGitLabCommits()) addCommit(c, 'gitlab');
+  flushLines('stats: ');
   const commitsAll = seen.size;
   // pro Jahr: GitHub-Kalender, pro Tag das Maximum aus GitHub und den eigenen Commits
   const calendars = Object.fromEntries(Object.entries(yearData).map(([k, v]) => [k.slice(1),

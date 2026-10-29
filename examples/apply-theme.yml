@@ -34,7 +34,7 @@ jobs:
       - uses: actions/checkout@v4
       - name: Write theme.json
         id: write
-        uses: nkunze2306/github-achievements-by-niounze/apply-theme@v9
+        uses: nkunze2306/github-achievements-by-niounze/apply-theme@stable
         with:
           issue-body: ${{ github.event.issue.body }}
       - name: Commit if changed

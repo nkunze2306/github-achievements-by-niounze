@@ -41,6 +41,14 @@ inputs:
     description: Optional. URL of the login worker for the dashboard owner login
     required: false
     default: ''
+  exclude-lines:
+    description: 'Optional. Extra paths that never count as lines of code, comma separated, for example "Assets/ThirdParty/**,*.dump.txt". Generated files, dependencies, lock files and Unity/Unreal project files are already left out.'
+    required: false
+    default: ''
+  line-filter:
+    description: 'Set to "off" to count the raw numbers GitHub reports (including generated and imported files)'
+    required: false
+    default: 'on'
   commit:
     description: 'Set to "true" to commit and push the generated files (needs contents: write and a checkout before this step)'
     required: false
@@ -48,6 +56,14 @@ inputs:
 runs:
   using: composite
   steps:
+    - name: Check how this action is referenced
+      shell: bash
+      env:
+        REF: ${{ github.action_ref }}
+      run: |
+        if echo "$REF" | grep -Eq '^v[0-9]'; then
+          echo "::notice title=Pinned to $REF::This workflow uses a frozen version. Change uses: ...@$REF to @stable to receive new versions automatically."
+        fi
     - uses: actions/setup-node@v4
       with:
         node-version: 20
@@ -63,6 +79,8 @@ runs:
         DASHBOARD_AUTH_CLIENT_ID: ${{ inputs.dashboard-auth-client-id }}
         DASHBOARD_AUTH_WORKER: ${{ inputs.dashboard-auth-worker }}
         INPUT_TIMEZONE: ${{ inputs.timezone }}
+        STATS_EXCLUDE: ${{ inputs.exclude-lines }}
+        LINES_FILTER: ${{ inputs.line-filter == 'off' && '0' || '1' }}
       run: |
         if [ -n "$INPUT_TIMEZONE" ]; then export ACH_TZ="$INPUT_TIMEZONE" STATS_TZ="$INPUT_TIMEZONE"; fi
         node "${{ github.action_path }}/run.mjs" --out "${{ inputs.output-dir }}"

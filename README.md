@@ -12,7 +12,7 @@ Your tokens are typed in by you and stored as repo secrets with `gh secret set`,
 
 ```text
 Set up the "GitHub Stats & Achievements" kit for my GitHub profile.
-Source: https://github.com/nkunze2306/github-achievements-by-niounze (read its README first and pin the newest release tag).
+Source: https://github.com/nkunze2306/github-achievements-by-niounze (read its README first). Use `@stable` as the version so the workflow upgrades itself.
 
 1. Account: run `gh auth status` and `gh api user --jq .login`. Tell me the account name and ask if it is the right one.
    If not, help me with `gh auth switch` or `gh auth login`. Everything below happens on exactly that account.
@@ -29,10 +29,11 @@ Source: https://github.com/nkunze2306/github-achievements-by-niounze (read its R
    (https://github.com/settings/tokens/new?scopes=repo,read:org&description=stats-kit) and store it the same way:
    `! gh secret set STATS_TOKEN -R <repo>`. Without it only public data is counted.
 7. Create .github/workflows/stats.yml from the kit's examples/minimal-workflow.yml (or full-workflow.yml if I want everything) with my choices:
-   components, output-dir, my time zone (ask), the WakaTime line only if I use it, the pinned tag. Show me the file first.
+   components, output-dir, my time zone (ask), the WakaTime line only if I use it, `@stable`. Ask me for folders that are not my code (asset packs, imported libraries) and add them as `exclude-lines`. Show me the file first.
 8. After I confirm: commit, push, run `gh workflow run stats.yml`, follow it with `gh run watch` and fix errors.
-   Finally give me the README snippet for stats.svg and, if I chose the dashboard, its URL.
+   Finally give me the README snippet for stats.svg and, if I chose the dashboard, its URL and the hint that "Customize" in its footer opens the settings.
 
+If a step fails, tell me the cause, fix it and continue with the next step. Never start over or redo finished steps. Check that a token really works before you store it.
 Rules: never print token or secret values. Ask before every push, repo creation and Pages activation. Change only files that belong to this setup.
 ```
 
@@ -181,7 +182,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: nkunze2306/github-achievements-by-niounze@v9
+      - uses: nkunze2306/github-achievements-by-niounze@stable
         with:
           token: ${{ secrets.STATS_TOKEN }}
           components: stats,achievements
@@ -227,6 +228,24 @@ All of these files are optional and live next to the generated files (`output-di
 The achievement list and thresholds come from [`achievements.config.json`](achievements.config.json) of this repo at the version you pin, they cannot be changed from your side.
 Want other thresholds? Fork this repo, edit the config and point `uses:` at your fork.
 
+### Which lines count as your code?
+
+Raw commit numbers include a lot nobody typed: a Unity project added in one commit can be 80,000 lines. For every large commit (500 or more changed lines) the kit reads the file list and **leaves these out automatically**:
+
+| Left out | Examples |
+| --- | --- |
+| Dependencies and build output | `node_modules`, `vendor`, `dist`, `out`, `target`, `bin`, `obj`, `Pods`, `.gradle`, `__pycache__` |
+| Lock files | `package-lock.json`, `yarn.lock`, `pnpm-lock.yaml`, `Cargo.lock`, `poetry.lock`, `go.sum`, ... |
+| Generated code | `*.min.js`, `*.map`, `*.designer.cs`, `*.g.cs`, `*.pb.go`, `*_pb2.py`, `*.generated.*` |
+| Unity projects | `*.meta`, scenes, prefabs, materials, animations, `Library/`, `ProjectSettings/`, `Packages/`, `Assets/Plugins`, `TextMesh Pro` (only when the commit really is a Unity project) |
+| Unreal and Godot projects | `*.uasset`, `*.umap`, `Intermediate/`, `Binaries/`, `.godot/`, `*.tscn`, `*.tres` |
+| IDE project files | `*.sln`, `*.csproj`, `*.pbxproj`, `.idea`, `.vs` |
+| Data and exports | `*.csv`, `*.ipynb`, `*.svg`, 3D exports (`*.fbx`, `*.obj`, `*.gltf`), logs, licence files |
+
+Merge commits never count. A huge commit that cannot be read (for example a private repo without a token) counts as a bulk import and is skipped. The result is cached in `lines-cache.json`, so only new large commits cost API calls. GitLab commits go through the same filter.
+
+Something specific to your project (an asset pack inside `Assets/`)? Add it with `exclude-lines: 'Assets/ThirdParty/**,*.dump.txt'` (`*` = one folder level, `**` = any depth). `line-filter: off` shows the raw numbers. The "total in all repos" figure on the card comes from GitHub's repo statistics for all authors and cannot be filtered.
+
 ### Data sources
 
 - **GitHub:** all branches of all repos you can see, commits de-duplicated by id, merge commits excluded from line counts. Numbers are higher than GitHub's own contribution counter.
@@ -262,7 +281,7 @@ Needs Node 20 or newer.
 - The action only reads your data and writes files into **your own repo**. It sends nothing to third parties.
 - Private repos are counted but never named, they appear as "private repo 1, 2, ...".
 - AI-assisted code is detected from commit trailers (`Co-authored-by: Claude / Copilot / ...`). No code is read or judged.
-- Pin a version (`@v9`) so the code that runs with your token cannot change under you.
+- **Updates:** the setup uses `@stable`, a branch that only moves forward after a release was tested, so every install gets new versions by itself. If you prefer a frozen version (the code that runs with your token never changes), write a tag instead, for example `@v10`, and change it yourself when you want to update.
 
 ## Repo layout
 

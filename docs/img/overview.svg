@@ -37,5 +37,5 @@
   </g>
 
   <text x="550" y="478" font-size="13" text-anchor="middle" fill="#8b949e">Dashed boxes are optional. Nothing is sent anywhere: the action only writes files into your own repo.</text>
-  <text x="550" y="500" font-size="12" text-anchor="middle" fill="#5f6670">uses: nkunze2306/github-achievements-by-niounze@v9 · with: components: stats,achievements</text>
+  <text x="550" y="500" font-size="12" text-anchor="middle" fill="#5f6670">uses: nkunze2306/github-achievements-by-niounze@stable · with: components: stats,achievements</text>
 </svg>

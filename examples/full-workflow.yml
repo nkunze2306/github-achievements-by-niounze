@@ -21,7 +21,7 @@ jobs:
         with:
           token: ${{ secrets.STATS_TOKEN || secrets.GITHUB_TOKEN }} # a PAT makes GitHub Pages rebuild after the push
           ref: main
-      - uses: nkunze2306/github-achievements-by-niounze@v9
+      - uses: nkunze2306/github-achievements-by-niounze@stable
         with:
           token: ${{ secrets.STATS_TOKEN || secrets.GITHUB_TOKEN }}
           components: stats,achievements,dashboard,road

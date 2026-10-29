@@ -23,6 +23,7 @@ if (unknown.length) { console.error(`Unknown component(s): ${unknown.join(', ')}
 const wanted = ORDER.filter((c) => asked.includes(c));
 if (!wanted.length) { console.error('No components selected'); process.exit(1); }
 mkdirSync(OUT, { recursive: true });
+process.env.LINES_CACHE = process.env.LINES_CACHE || join(OUT, 'lines-cache.json'); // answers of the line filter, see lines.mjs
 console.log(`Components: ${wanted.join(', ')} -> ${OUT}`);
 
 const node = (script, args = [], env = {}) => {

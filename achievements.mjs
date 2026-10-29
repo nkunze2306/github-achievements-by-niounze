@@ -7,6 +7,7 @@
 import { readFileSync, writeFileSync, existsSync, mkdirSync, copyFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { renderPage } from './web/page.mjs';
+import { adjustCommit, flushLines } from './lines.mjs';
 import { collectGitLabCommits } from './gitlab.mjs';
 
 const ICONS = JSON.parse(readFileSync(new URL('./web/icons.json', import.meta.url), 'utf8')); // 12x12 pixel icons, one per achievement id
@@ -129,7 +130,7 @@ async function collectGitHub() {
             ref(qualifiedName:$ref){ target{ ... on Commit{ history(first:100,after:$after,author:{id:$id}){ pageInfo{hasNextPage endCursor} nodes{ oid committedDate additions deletions message parents{totalCount} } } } } } } }`,
           { owner, name, ref: `refs/heads/${br}`, id: u.id, after })).repository?.ref?.target?.history;
           if (!h) break;
-          for (const c of h.nodes) addCommit(c, r.nameWithOwner);
+          for (const c of h.nodes) addCommit(await adjustCommit(c, r.nameWithOwner), r.nameWithOwner);
           if (!h.pageInfo.hasNextPage) break;
           after = h.pageInfo.endCursor;
         }
@@ -138,6 +139,7 @@ async function collectGitHub() {
   }
   // optional GitLab: only commits authored by you (see gitlab.mjs); duplicates of GitHub commits are skipped by id
   for (const c of await collectGitLabCommits()) addCommit(c, 'gitlab');
+  flushLines('achievements: ');
   m.commits = seen.size;
   // languages: from every repo you committed to; lines per language = your added lines split by the language share (estimate)
   const lang = new Map();
