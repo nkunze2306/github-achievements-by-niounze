@@ -230,7 +230,7 @@ Want other thresholds? Fork this repo, edit the config and point `uses:` at your
 
 ### Which lines count as your code?
 
-Raw commit numbers include a lot nobody typed: a Unity project added in one commit can be 80,000 lines. For every large commit (500 or more changed lines) the kit reads the file list and **leaves these out automatically**:
+Raw commit numbers include a lot nobody typed: a Unity project added in one commit can be 80,000 lines. For every commit of 100 or more changed lines the kit reads the file list and **leaves these out automatically**:
 
 | Left out | Examples |
 | --- | --- |

@@ -6,7 +6,7 @@
 // they are (they are cheap to trust and would cost one API call each).
 //
 //   LINES_FILTER=0              switch the filter off (raw GitHub numbers)
-//   LINES_THRESHOLD=500         commits with fewer changed lines than this are not inspected
+//   LINES_THRESHOLD=100         commits with fewer changed lines than this are not inspected
 //   LINES_MAX_CALLS=800         API calls per run for file lists (results are cached, so the next runs are cheap)
 //   LINES_UNVERIFIED_CAP=20000  a huge commit whose files cannot be read counts as a bulk import and is not counted
 //   STATS_EXCLUDE=a,b           extra patterns, for example "Assets/MyGenerated/**,*.dump.txt" (* = one folder level, ** = any depth)
@@ -14,7 +14,7 @@
 import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 
 const ON = process.env.LINES_FILTER !== '0';
-const THRESHOLD = Number(process.env.LINES_THRESHOLD || 500);
+const THRESHOLD = Number(process.env.LINES_THRESHOLD || 100);
 const MAX_CALLS = Number(process.env.LINES_MAX_CALLS || 800);
 const UNVERIFIED_CAP = Number(process.env.LINES_UNVERIFIED_CAP || 20000);
 const TOKEN = (process.env.STATS_TOKEN || process.env.GITHUB_TOKEN || '').trim();
