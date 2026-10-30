@@ -410,7 +410,7 @@ function render(d) {
     ${card('c4', 'By weekday', 'yellow', `Peak: ${DAYS[wpeak].slice(0, 3)}`, `<div class="cols" style="--c:var(--green)">${wd}</div><div class="axis">${'MTWTFSS'.split('').map((x) => `<span>${x}</span>`).join('')}</div>`)}
     ${card('c8', 'By hour of day', 'purple', `Peak ${String(hpeak).padStart(2, '0')}:00 · ${mood}`, `<div class="cols thin">${hh}</div><div class="axis thin">${hAxis}</div>`)}
   </div>
-  <footer>Updated ${upd} · generated automatically by GitHub Actions</footer>`;
+  <footer>Updated ${upd} · generated automatically by GitHub Actions &middot; Pretty GitHub Profile by <a href="https://github.com/nkunze2306/github-achievements-by-niounze" style="color:inherit">niounze</a></footer>`;
 
   document.addEventListener('click', (e) => {
     const b = e.target.closest && e.target.closest('[data-year]');

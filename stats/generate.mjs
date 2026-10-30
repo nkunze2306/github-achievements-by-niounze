@@ -1062,6 +1062,7 @@ function render(d) {
   y += H7 + 14;
 
   parts.push(text(W - M, y + 4, `Updated ${dateStr} · generated automatically by GitHub Actions`, { size: 10.5, fill: C.dim, anchor: 'end' }));
+  parts.push(text(M, y + 4, 'Pretty GitHub Profile by niounze', { size: 10.5, fill: C.dim }));
   const H = y + 14;
 
   const HEAD = headroom(), body = `${parts.join('\n')}\n${themeSvg(W, H)}`;
