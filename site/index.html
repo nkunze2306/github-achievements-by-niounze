@@ -29,6 +29,7 @@
   .btn:hover { border-color: var(--green); color: #fff; transform: translateY(-1px); }
   .btn.primary { background: var(--green); border-color: var(--green); color: #04120b; font-weight: 700; }
   .btn.primary:hover { color: #04120b; filter: brightness(1.08); }
+  .by { text-align: right; font-size: 11px; margin-bottom: 8px; } .by a { color: var(--dim); text-decoration: none; } .by a:hover { color: var(--text); }
   .pills { margin-left: auto; display: flex; gap: 8px; flex-wrap: wrap; }
   .pill { display: inline-flex; align-items: center; justify-content: center; gap: 4px; text-align: center; background: #151515; border: 1px solid #2c2c2c; border-radius: 999px; padding: 7px 14px; font-size: 12px; color: #9a9a9a; }
   .pill b { color: #fff; }
@@ -362,6 +363,7 @@ function render(d) {
   const wakaViews = d.waka ? null : null;
   const wk = wakaHtml ? wakaHtml.split('<!--SPLIT-->') : ['', '', ''];
   document.getElementById('app').innerHTML = `
+  <div class="by"><a href="https://github.com/nkunze2306/github-achievements-by-niounze">Pretty GitHub Profile by niounze</a></div>
   <header>
     <img class="avatar" src="https://github.com/${esc(d.login)}.png?size=96" alt="" onerror="this.style.visibility='hidden'">
     <div class="who"><b>${esc(d.name)}</b><a href="https://github.com/${esc(d.login)}"><span>@${esc(d.login)} · joined ${d.joined}</span></a></div>
