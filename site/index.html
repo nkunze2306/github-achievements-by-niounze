@@ -513,7 +513,32 @@ function watchForUpdates(loaded) {
 // Anmeldung des Owners: Die Seite ist statisch und kennt dein GitHub-Konto nicht. "Sign in with GitHub" (OAuth) bestätigt auf jedem Gerät, wer du bist;
 // ein kleiner Worker (worker/oauth.js) tauscht den Code gegen den Login-Namen und gibt nur diesen zurück. Einrichtung: SETUP-LOGIN.md.
 // Solange hier nichts eingetragen ist, gilt der alte Weg (einmal mit #settings öffnen, merkt sich der Browser).
-const AUTH = { clientId: '', worker: '' };
+const AUTH = { clientId: '', worker: '', visits: false };
+
+// Optional visitor statistics for the owner (see docs/SETUP-VISITS.md): one anonymous ping per browser session to your own worker.
+// Not sent for the owner. The worker adds country and city; no cookie is set and no IP address is stored.
+function reportVisit() {
+  if (!AUTH.visits || !AUTH.worker) return;
+  const host = location.hostname, owner = host.endsWith('.github.io') ? host.split('.')[0].toLowerCase() : '';
+  try {
+    if (localStorage.getItem('tlOwner') === '1' || (owner && String(localStorage.getItem('tlUser') || '').toLowerCase() === owner)) return;
+    if (sessionStorage.getItem('visitSent')) return;
+    sessionStorage.setItem('visitSent', '1');
+  } catch { /* storage blocked: report anyway */ }
+  const send = () => {
+    const n = navigator, c = n.connection || {}, q = new URLSearchParams(location.search);
+    const nav = performance.getEntriesByType ? performance.getEntriesByType('navigation')[0] : null;
+    const utm = ['utm_source', 'utm_medium', 'utm_campaign'].filter((k) => q.get(k)).map((k) => k + '=' + q.get(k)).join('&');
+    fetch(AUTH.worker + '/hit', { method: 'POST', keepalive: true, headers: { 'Content-Type': 'text/plain' }, body: JSON.stringify({
+      path: location.pathname, ref: document.referrer, utm, lang: n.language, langs: (n.languages || []).join(','), clientTz: Intl.DateTimeFormat().resolvedOptions().timeZone,
+      platform: (n.userAgentData && n.userAgentData.platform) || n.platform, screen: screen.width + 'x' + screen.height, viewport: innerWidth + 'x' + innerHeight,
+      dpr: devicePixelRatio, dark: matchMedia('(prefers-color-scheme: dark)').matches ? 1 : 0, touch: n.maxTouchPoints, cores: n.hardwareConcurrency, mem: n.deviceMemory,
+      conn: c.effectiveType, loadMs: nav && nav.loadEventEnd ? Math.round(nav.loadEventEnd) : null,
+    }) }).catch(() => {});
+  };
+  if (document.readyState === 'complete') setTimeout(send, 0); else addEventListener('load', () => setTimeout(send, 0));
+}
+reportVisit();
 
 // Theme & look: schmale Leiste über die volle Breite, nur für den Owner.
 // Speichern ohne Token: "Save & rebuild" öffnet ein vorausgefülltes GitHub-Issue, der Workflow apply-theme.yml übernimmt es nur vom Owner.

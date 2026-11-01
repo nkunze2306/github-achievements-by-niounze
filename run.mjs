@@ -38,7 +38,7 @@ for (const c of wanted) {
   if (c === 'dashboard') {
     // The page is copied on every run so it stays up to date. The optional owner login (OAuth) is filled in from the environment.
     let html = readFileSync(join(HERE, 'site/index.html'), 'utf8');
-    const auth = { clientId: process.env.DASHBOARD_AUTH_CLIENT_ID || '', worker: process.env.DASHBOARD_AUTH_WORKER || '' };
+    const auth = { clientId: process.env.DASHBOARD_AUTH_CLIENT_ID || '', worker: process.env.DASHBOARD_AUTH_WORKER || '', visits: process.env.DASHBOARD_VISITS === 'true' };
     const before = html;
     html = html.replace(/const AUTH = \{[^}]*\};/, () => `const AUTH = ${JSON.stringify(auth)};`);
     if (html === before && (auth.clientId || auth.worker)) console.warn('dashboard: AUTH line not found in site/index.html');
