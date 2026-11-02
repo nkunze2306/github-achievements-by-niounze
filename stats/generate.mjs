@@ -9,7 +9,7 @@ import { THEMES } from './themes/index.mjs';
 import { SAKURA_DEFAULTS } from './themes/sakura.mjs';
 import { normalizeTheme } from './theme.mjs';
 import { collectGitLabCommits } from '../gitlab.mjs';
-import { adjustCommit, flushLines } from '../lines.mjs';
+import { adjustCommit, flushLines, lineFilter } from '../lines.mjs';
 
 const TOKEN = (process.env.STATS_TOKEN || process.env.GITHUB_TOKEN || '').trim() || undefined;
 const LOGIN = process.env.STATS_LOGIN || process.env.GITHUB_REPOSITORY_OWNER;
@@ -120,6 +120,7 @@ async function fetchData() {
   const hours = Array(24).fill(0);
   const daily = new Map();
   const repoCount = new Map();
+  const repoAdds = new Map(), repoLang = new Map();
   const seen = new Set();
   const yearAgo = now.getTime() - 365 * 864e5;
   let commitsYear = 0, addHuman = 0, addAI = 0, del = 0, changed = 0;
@@ -141,6 +142,12 @@ async function fetchData() {
     // Merge-Commits enthalten den Code anderer (ganzer Diff des Merges) -> nicht als eigene Zeilen zählen
     if (c.parents.totalCount > 1) return;
     if (ai) addAI += c.additions; else addHuman += c.additions;
+    repoAdds.set(repoName, (repoAdds.get(repoName) || 0) + c.additions);
+    if (c.langs) {
+      const m = repoLang.get(repoName) || new Map();
+      for (const [l, n] of Object.entries(c.langs)) m.set(l, (m.get(l) || 0) + n);
+      repoLang.set(repoName, m);
+    }
     del += c.deletions;
     changed += Math.min(c.additions, c.deletions); // in beide Richtungen vorkommende Zeilen = umgeschrieben (Refactoring)
   };
@@ -186,11 +193,27 @@ async function fetchData() {
   const contribYear = weeks.flat().reduce((s, d) => s + d.count, 0);
   // optional GitLab: nur Commits, die du selbst verfasst hast (siehe gitlab.mjs)
   for (const c of await collectGitLabCommits()) addCommit(c, 'gitlab');
-  flushLines('stats: ');
+  const lineStat = flushLines('stats: ');
   const commitsAll = seen.size;
   // pro Jahr: GitHub-Kalender, pro Tag das Maximum aus GitHub und den eigenen Commits
   const calendars = Object.fromEntries(Object.entries(yearData).map(([k, v]) => [k.slice(1),
     v.contributionCalendar.weeks.map((w) => w.contributionDays.map((x) => ({ date: x.date, count: Math.max(x.contributionCount, daily.get(x.date) || 0) })))]));
+
+  // Zeilen pro Sprache: exakt aus den Dateilisten der geprüften Commits; kleinere Commits werden nach dem Sprachmix ihres Repos verteilt (Schätzung)
+  const byLang = new Map(), langColor = new Map();
+  for (const r of repos) for (const e of r.languages.edges) langColor.set(e.node.name, e.node.color || '#888');
+  for (const [repo, adds] of repoAdds) {
+    const known = repoLang.get(repo) || new Map(), knownSum = [...known.values()].reduce((s, n) => s + n, 0);
+    for (const [l, n] of known) byLang.set(l, (byLang.get(l) || 0) + n);
+    const rest = adds - knownSum;
+    if (rest <= 0) continue;
+    const mix = knownSum ? known : new Map((repos.find((x) => x.nameWithOwner === repo)?.languages.edges || []).map((e) => [e.node.name, e.size]));
+    const mixSum = [...mix.values()].reduce((s, n) => s + n, 0);
+    if (!mixSum) { byLang.set('Other', (byLang.get('Other') || 0) + rest); continue; }
+    for (const [l, n] of mix) byLang.set(l, (byLang.get(l) || 0) + (rest * n) / mixSum);
+  }
+  const linesByLanguage = [...byLang].map(([name, lines]) => ({ name, color: langColor.get(name) || '#8b8b8b', lines: Math.round(lines) }))
+    .filter((l) => l.lines > 0).sort((a, b) => b.lines - a.lines);
 
   // Sprachen, Sterne, Forks nur aus Repos mit eigener Aktivität bzw. eigenen Originalen
   const owned = repos.filter((r) => r.nameWithOwner.startsWith(`${LOGIN}/`) && !r.isFork);
@@ -255,6 +278,8 @@ async function fetchData() {
     reposOwn: u.ownRepos.totalCount, reposContrib: u.repositoriesContributedTo.totalCount,
     addHuman, addAI, del, changed, linesAllRepos: { total: linesTotal, repos: linesRepos },
     languages: [...langMap.values()].sort((a, b) => b.size - a.size),
+    linesByLanguage,
+    linesFilter: { on: lineFilter.on, threshold: lineFilter.threshold, removed: lineStat?.removed || 0 },
     monthly: [...monthly.values()],
     topRepos, weekday, hours, updated: now,
     waka: await fetchWaka(now),
@@ -412,6 +437,11 @@ function demoData() {
     pr: { total: 143, merged: 121 }, issues: { total: 62, closed: 55 }, reviews: 89, comments: 214, stars: 318,
     forks: 41, forksReceived: 12, watchers: 22, reposOwn: 27, reposContrib: 14,
     addHuman: 136000, addAI: 48000, del: 61000, changed: 38000, linesAllRepos: { total: 2410000, repos: 18 },
+    linesByLanguage: [
+      { name: 'TypeScript', color: '#38bdf8', lines: 61000 }, { name: 'Python', color: '#b794ff', lines: 44000 }, { name: 'C#', color: '#34f5a0', lines: 33000 },
+      { name: 'JavaScript', color: '#fbbf24', lines: 20000 }, { name: 'HTML', color: '#ff5c9a', lines: 16000 }, { name: 'CSS', color: '#6b8afd', lines: 10000 },
+    ],
+    linesFilter: { on: true, threshold: 100, removed: 74000 },
     languages: [
       { name: 'TypeScript', color: '#38bdf8', size: 31 }, { name: 'Python', color: '#b794ff', size: 24 },
       { name: 'C#', color: '#34f5a0', size: 18 }, { name: 'JavaScript', color: '#fbbf24', size: 11 },
@@ -827,6 +857,28 @@ function render(d) {
     });
   }
   y += R1 + G;
+
+  if (d.linesByLanguage?.length) {
+    const top = d.linesByLanguage.slice(0, 6), rest = d.linesByLanguage.slice(6).reduce((s, l) => s + l.lines, 0);
+    const parts6 = rest ? [...top.slice(0, 5), { name: 'Other', color: '#8b8b8b', lines: rest + top[5].lines }] : top;
+    const sum = parts6.reduce((s, l) => s + l.lines, 0) || 1, RL = 142, bw = CW - 2 * PAD;
+    parts.push(card(M, y, CW, RL, 'Lines of code · by language', C.pink, `${short(sum)} counted · estimated for small commits`));
+    let bx = M + PAD;
+    parts6.forEach((l) => { const w = Math.max(3, (bw * l.lines) / sum); parts.push(`<rect x="${bx}" y="${y + 44}" width="${Math.max(1, w - 2)}" height="10" rx="3" fill="${vivid(l.color)}"/>`); bx += w; });
+    const iw = bw / parts6.length;
+    parts6.forEach((l, i) => {
+      const lx = M + PAD + i * iw;
+      parts.push(`<circle cx="${lx + 4}" cy="${y + 73}" r="4" fill="${vivid(l.color)}"/>`);
+      parts.push(text(lx + 13, y + 77, l.name, { size: 12, fill: C.text, weight: 700 }));
+      parts.push(text(lx + 13, y + 94, `${short(l.lines)} · ${Math.round((l.lines / sum) * 100)}%`, { size: 11, fill: C.dim }));
+    });
+    if (d.linesFilter?.on) {
+      const t = d.linesFilter.threshold;
+      parts.push(text(M + PAD, y + 116, `Not counted: dependencies and build output, lock files, generated and minified code, Unity and IDE project files (.meta .unity .prefab .sln …),`, { size: 9.5, fill: C.dim }));
+      parts.push(text(M + PAD, y + 130, `data and exports (.csv .svg .fbx …), licences. ${num(d.linesFilter.removed)} lines left out. Commits under ${t} lines are taken as they are.`, { size: 9.5, fill: C.dim }));
+    }
+    y += RL + G;
+  }
 
   // ===== Achievements (aus achievements.json, erzeugt von github-achievements-by-niounze) =====
   const ach = readAchievements();

@@ -285,9 +285,12 @@ function render(d) {
   })();
 
   // languages
-  const langs = d.languages.slice(0, 6).map((l) => ({ ...l, color: vivid(l.color) })), lt = langs.reduce((s, l) => s + l.size, 0) || 1;
+  const byLines = !!(d.linesByLanguage && d.linesByLanguage.length);
+  const langs = (byLines ? d.linesByLanguage.map((l) => ({ name: l.name, color: l.color, size: l.lines })) : d.languages).slice(0, 6).map((l) => ({ ...l, color: vivid(l.color) })), lt = langs.reduce((s, l) => s + l.size, 0) || 1;
+  const lf = d.linesFilter;
+  const notCounted = lf && lf.on ? `Not counted: dependencies and build output, lock files, generated and minified code, Unity and IDE project files (.meta .unity .prefab .sln …), data and exports (.csv .svg .fbx …), licences. ${fmt(lf.removed)} lines left out. Commits under ${lf.threshold} lines are taken as they are.` : '';
   const seg = langs.map((l, i) => `<i style="flex:${l.size};background:${l.color};transition-delay:${i * 60}ms" ${tip(`${l.name} · ${Math.round((l.size / lt) * 100)}%`)}></i>`).join('');
-  const legend = langs.map((l) => `<span><em style="background:${l.color}"></em><b>${esc(l.name)}</b> ${Math.round((l.size / lt) * 100)}%</span>`).join('');
+  const legend = langs.map((l) => `<span><em style="background:${l.color}"></em><b>${esc(l.name)}</b> ${byLines ? short(l.size) + ' · ' : ''}${Math.round((l.size / lt) * 100)}%</span>`).join('');
 
   // monthly
   const mmax = Math.max(1, ...d.monthly.map((m) => m.human + m.ai));
@@ -376,7 +379,7 @@ function render(d) {
       `<div class="row" style="margin-bottom:14px"><span class="hero2 grow">+${short(add)}</span><span class="hero2 shrink">−${short(d.del)}</span><span class="sub">added / removed</span></div>
        <div class="seg"><i style="flex:${d.addHuman || 1};background:var(--green)" ${tip(`Human: ${fmt(d.addHuman)} lines`)}></i><i style="flex:${d.addAI || 0.001};background:var(--purple);${d.addAI ? '' : 'display:none'}" ${tip(`AI-assisted: ${fmt(d.addAI)} lines`)}></i></div>
        <div class="legend2"><span><em style="background:var(--green)"></em><b>Human</b> ${fmt(d.addHuman)} lines · ${Math.round(hr * 100)}%</span><span><em style="background:var(--purple)"></em><b>AI-assisted</b> ${fmt(d.addAI)} lines · ${Math.round((1 - hr) * 100)}%</span></div>
-       <div class="note">AI-assisted = commits with an AI co-author trailer (Claude, Copilot, …)</div>
+       <div class="note">AI-assisted = commits with an AI co-author trailer (Claude, Copilot, …)${lf && lf.on ? `. ${fmt(lf.removed)} lines of generated, vendored and project files are not counted (details in the language card).` : ''}</div>
        <div class="split"><span>Processed (added + removed)</span><b>${short(add + d.del)} lines</b></div><div class="split" style="margin-top:8px;border:0;padding-top:0" data-tip="Lines that were rewritten in place: min(added, removed) per commit"><span>Refactored (rewritten in place)</span><b>${short(d.changed || 0)} lines</b></div>${d.linesAllRepos ? `<div class="split" style="margin-top:8px;border:0;padding-top:0"><span>Total in all ${d.linesAllRepos.repos} repos</span><b>${short(d.linesAllRepos.total)} lines</b></div>` : ''}`, 'All lines added and removed in your commits on every branch, no cap')}
 
 
@@ -402,7 +405,7 @@ function render(d) {
     ${card('c3', 'Watchers', 'blue', '', `<div class="big">${fmt(d.watchers)}</div>`, 'People watching your own repositories')}
     ${card('c6', 'Repositories', 'green', '', `<div class="row"><span class="big">${fmt(d.reposOwn)}</span><span class="sub">own</span><span class="big" style="margin-left:18px">${fmt(d.reposContrib)}</span><span class="sub">contributed to</span></div>`)}
 
-    ${card('c6', 'Languages · by code', 'yellow', langs[0] ? `Top: ${esc(langs[0].name)}` : '', `<div class="seg">${seg}</div><div class="legend2">${legend}</div>`)}
+    ${card('c6', byLines ? 'Lines of code · by language' : 'Languages · by code', 'yellow', langs[0] ? `Top: ${esc(langs[0].name)}` : '', `<div class="seg">${seg}</div><div class="legend2">${legend}</div>${byLines ? `<div class="note">Estimated for commits under ${lf ? lf.threshold : 100} lines. ${notCounted}</div>` : ''}`)}
 
     ${card('c6', 'Top repos by commits', 'blue', '', repos)}
 
@@ -582,7 +585,7 @@ async function themeConfig() {
     if (!isOwner) {
       // without the OAuth login there is still a way in: one click marks this browser as owner (applying a change is only ever done for the repo owner, see apply-theme.yml)
       const f = document.querySelector('footer');
-      if (f) { f.insertAdjacentHTML('beforeend', ' � <a href="#settings" id="tlOpenLink" style="color:inherit">Customize</a>'); f.querySelector('#tlOpenLink').onclick = (e) => { e.preventDefault(); ls('tlOwner', '1'); location.reload(); }; }
+      if (f) { f.insertAdjacentHTML('beforeend', ' · <a href="#settings" id="tlOpenLink" style="color:inherit">Customize</a>'); f.querySelector('#tlOpenLink').onclick = (e) => { e.preventDefault(); ls('tlOwner', '1'); location.reload(); }; }
     }
   }
   if (!isOwner) return;
