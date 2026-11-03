@@ -27,10 +27,20 @@ const AI_RE =
 // ---------------------------------------------------------------- Daten holen
 
 async function api(url, init = {}) {
-  const res = await fetch(url, { ...init, headers: { Authorization: `bearer ${TOKEN}`, 'Content-Type': 'application/json', ...init.headers } });
-  const json = await res.json();
-  if (!res.ok) throw new Error(JSON.stringify(json));
-  return json;
+  let last;
+  for (let attempt = 0; attempt < 5; attempt++) {
+    if (attempt) await new Promise((r) => setTimeout(r, 2000 * attempt * attempt));
+    try {
+      const res = await fetch(url, { ...init, headers: { Authorization: `bearer ${TOKEN}`, 'Content-Type': 'application/json', ...init.headers } });
+      const text = await res.text();
+      let json;
+      try { json = JSON.parse(text); } catch { last = new Error(`HTTP ${res.status}: non-JSON response`); continue; } // GitHub liefert bei Timeouts/502 manchmal HTML
+      if (res.status >= 500) { last = new Error(`HTTP ${res.status}`); continue; }
+      if (!res.ok) throw new Error(JSON.stringify(json));
+      return json;
+    } catch (e) { if (!/^HTTP [0-9]+|fetch failed/.test(e.message)) throw e; last = e; }
+  }
+  throw last;
 }
 
 async function gql(query, variables = {}) {

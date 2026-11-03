@@ -122,9 +122,16 @@ async function githubFiles(repo, oid) {
   const files = [];
   for (let page = 1; page <= 30; page++) {
     stat.calls++;
-    const res = await fetch(`https://api.github.com/repos/${repo}/commits/${oid}?per_page=100&page=${page}`, { headers: { Authorization: `bearer ${TOKEN}`, Accept: 'application/vnd.github+json' } });
-    if (res.status !== 200) return files.length ? files : null;
-    const j = await res.json();
+    let j = null;
+    for (let attempt = 0; attempt < 3 && !j; attempt++) {
+      if (attempt) await new Promise((r) => setTimeout(r, 1500 * attempt));
+      try {
+        const res = await fetch(`https://api.github.com/repos/${repo}/commits/${oid}?per_page=100&page=${page}`, { headers: { Authorization: `bearer ${TOKEN}`, Accept: 'application/vnd.github+json' } });
+        if (res.status === 200) j = await res.json();
+        else if (res.status < 500) break;
+      } catch { /* HTML error page or network hiccup: try again */ }
+    }
+    if (!j) return files.length ? files : null;
     files.push(...(j.files || []));
     if ((j.files || []).length < 100) break;
   }
